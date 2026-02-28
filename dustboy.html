@@ -200,26 +200,33 @@
             });
 
             client.on('message', (topic, message) => {
+                const msgStr = message.toString();
+                console.log(`Topic: ${topic} | Message: ${msgStr}`);
+
                 try {
-                    const msgStr = message.toString();
-                    // Handle cases where message is just a string like "offline"
+                    // Handling raw "offline" string
                     if (msgStr === 'offline') {
                         onDataReceived(topic, { pm25: 0, status: 'offline' });
                         return;
                     }
 
+                    // Handling raw numbers (some MQTT bridges send direct values)
+                    if (!isNaN(msgStr) && msgStr.trim() !== '') { // Added trim() to handle potential whitespace
+                        onDataReceived(topic, { pm25: parseFloat(msgStr) });
+                        return;
+                    }
+
                     const rawData = JSON.parse(msgStr);
-                    // Handle nested data or direct properties
                     const data = rawData.data || rawData;
                     onDataReceived(topic, data);
                 } catch (e) {
-                    console.error('Error parsing MQTT message:', e);
+                    console.warn('Non-JSON message received:', msgStr);
                 }
             });
 
             client.on('error', (err) => {
-                statusText.innerText = 'ERROR'; // Changed statusEl to statusText
-                dot.classList.remove('active'); // Changed statusEl.classList to dot.classList
+                statusText.innerText = 'ERROR';
+                dot.classList.remove('active');
                 console.error('MQTT Error:', err);
             });
 
@@ -230,11 +237,17 @@
             const parts = topic.split('/');
             const id = parts[3] || 'Unknown';
 
-            // Try different possible field names for PM2.5
-            const pm25 = parseFloat(data.pm25 || data.pm2_5 || data.pm25_value || 0);
+            // Comprehensive field checking
+            const pm25 = parseFloat(
+                data.pm25 !== undefined ? data.pm25 :
+                    data.pm2_5 !== undefined ? data.pm2_5 :
+                        data.pm25_value !== undefined ? data.pm25_value :
+                            data.value !== undefined ? data.value : 0
+            );
+
             const pm10 = parseFloat(data.pm10 || data.pm10_value || 0);
             const nickname = data.nickname || data.nickname_th || id;
-            const isOffline = data.status === 'offline';
+            const isOffline = data.status === 'offline' || (typeof data === 'string' && data === 'offline');
 
             if (!stationMeshes.has(id)) {
                 // Create New Entity

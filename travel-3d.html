@@ -7,10 +7,11 @@
     <title>3D Travel Journey | Smile Oracle</title>
     <style>
         :root {
-            --bg-color: #050505;
-            --accent-color: #00e5ff;
-            --text-color: #ffffff;
-            --panel-bg: rgba(20, 20, 20, 0.85);
+            --bg-color: #87ceeb;
+            /* Sky Blue */
+            --accent-color: #0077be;
+            --text-color: #333333;
+            --panel-bg: rgba(255, 255, 255, 0.85);
         }
 
         body {
@@ -36,13 +37,43 @@
 
         .title {
             font-size: 1.5rem;
-            font-weight: 300;
+            font-weight: 700;
             letter-spacing: 4px;
             text-transform: uppercase;
             margin: 0;
-            background: linear-gradient(90deg, #fff, var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #222;
+        }
+
+        .camera-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+
+        .cam-btn {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+
+        .cam-btn:hover {
+            background: #fff;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .cam-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
         }
 
         .status-box {
@@ -54,11 +85,11 @@
             backdrop-filter: blur(15px);
             padding: 15px 30px;
             border-radius: 50px;
-            border: 1px solid rgba(0, 229, 255, 0.3);
+            border: 1px solid rgba(0, 0, 0, 0.05);
             display: flex;
             gap: 40px;
             align-items: center;
-            box-shadow: 0 0 30px rgba(0, 229, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
 
         .status-item {
@@ -71,7 +102,7 @@
             font-size: 0.65rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(0, 0, 0, 0.5);
         }
 
         .status-value {
@@ -80,22 +111,13 @@
             font-weight: 600;
         }
 
-        .controls-hint {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 0.7rem;
-            color: rgba(255, 255, 255, 0.4);
-            text-align: right;
-        }
-
         .footer {
             position: absolute;
             bottom: 10px;
             right: 15px;
             font-size: 0.7rem;
             letter-spacing: 2px;
-            color: rgba(255, 255, 255, 0.3);
+            color: rgba(0, 0, 0, 0.3);
         }
     </style>
 </head>
@@ -103,13 +125,14 @@
 <body>
 
     <div class="overlay">
-        <h1 class="title">THE NEON EXPRESS</h1>
+        <h1 class="title">THE DAYLIGHT EXPRESS</h1>
     </div>
 
-    <div class="controls-hint">
-        LEFT CLICK: ROTATE<br>
-        RIGHT CLICK: PAN<br>
-        SCROLL: ZOOM
+    <div class="camera-controls">
+        <button class="cam-btn active" onclick="setCamera('FREE')">FREE</button>
+        <button class="cam-btn" onclick="setCamera('FOLLOW')">FOLLOW</button>
+        <button class="cam-btn" onclick="setCamera('TOP')">TOP</button>
+        <button class="cam-btn" onclick="setCamera('SIDE')">SIDE</button>
     </div>
 
     <div id="canvas-container"></div>
@@ -124,8 +147,8 @@
             <span class="status-value" id="batt">--%</span>
         </div>
         <div class="status-item">
-            <span class="status-label">Speed</span>
-            <span class="status-value">Normal</span>
+            <span class="status-label">Environment</span>
+            <span class="status-value">Daytime</span>
         </div>
     </div>
 
@@ -156,34 +179,59 @@
         let waypoints = [];
         let fraction = 0;
         const trainSpeed = 0.0005; // speed along path
+        let cameraMode = 'FREE'; // FREE, FOLLOW, TOP, SIDE
+
+        // Exposed to global for button clicks
+        window.setCamera = (mode) => {
+            cameraMode = mode;
+            document.querySelectorAll('.cam-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText === mode);
+            });
+            if (mode === 'FREE') {
+                controls.enabled = true;
+            } else {
+                controls.enabled = false;
+            }
+        };
 
         // --- Init Function ---
         function init() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050505);
-            scene.fog = new THREE.FogExp2(0x050505, 0.002);
+            scene.background = new THREE.Color(0x87ceeb); // Day Sky
+            scene.fog = new THREE.FogExp2(0x87ceeb, 0.001);
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
-            camera.position.set(100, 100, 200);
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 8000);
+            camera.position.set(300, 300, 500);
 
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
             document.getElementById('canvas-container').appendChild(renderer.domElement);
 
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
 
             // Lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
             scene.add(ambientLight);
 
-            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.5);
-            scene.add(hemiLight);
+            const sunLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            sunLight.position.set(500, 1000, 200);
+            sunLight.castShadow = true;
+            scene.add(sunLight);
 
-            // Grid Floor
-            const grid = new THREE.GridHelper(2000, 50, 0x00e5ff, 0x222222);
-            grid.position.y = -5;
+            // Ground
+            const groundGeom = new THREE.PlaneGeometry(8000, 8000);
+            const groundMat = new THREE.MeshPhongMaterial({ color: 0xeeeeee });
+            const ground = new THREE.Mesh(groundGeom, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.position.y = -6;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            const grid = new THREE.GridHelper(8000, 100, 0xcccccc, 0xdddddd);
+            grid.position.y = -5.9;
             scene.add(grid);
 
             // Start Loading Data
@@ -215,7 +263,7 @@
             // Use Phitsanulok roughly as center for coordinate system
             const centerLat = 17.5;
             const centerLon = 99.5;
-            const scale = 500; // units per degree
+            const scale = 800; // units per degree
 
             waypoints = pointsData.map(pt => {
                 if (!pt.lat || !pt.lon) return null;
@@ -232,9 +280,9 @@
             routeCurve = new THREE.CatmullRomCurve3(waypoints);
 
             // Draw route on ground
-            const pathPoints = routeCurve.getPoints(500);
+            const pathPoints = routeCurve.getPoints(1000);
             const pathGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
-            const pathMaterial = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.5 });
+            const pathMaterial = new THREE.LineBasicMaterial({ color: 0x0077be, linewidth: 2 });
             const pathLine = new THREE.Line(pathGeometry, pathMaterial);
             scene.add(pathLine);
 
@@ -244,31 +292,53 @@
         function createTrain() {
             const trainGroup = new THREE.Group();
 
-            // Engine Body
-            const bodyGeom = new THREE.BoxGeometry(6, 4, 12);
-            const bodyMat = new THREE.MeshPhongMaterial({ color: 0x222222, shininess: 100 });
+            // Train Engine
+            const bodyGeom = new THREE.BoxGeometry(8, 6, 16);
+            const bodyMat = new THREE.MeshPhongMaterial({ color: 0xcc0000 });
             const body = new THREE.Mesh(bodyGeom, bodyMat);
+            body.castShadow = true;
             trainGroup.add(body);
 
-            // Neon details
-            const neonGeom = new THREE.BoxGeometry(6.2, 0.5, 12.2);
-            const neonMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
-            const neonLine = new THREE.Mesh(neonGeom, neonMat);
-            neonLine.position.y = -1.8;
-            trainGroup.add(neonLine);
-
-            const cabinGeom = new THREE.BoxGeometry(5, 3, 5);
-            const cabin = new THREE.Mesh(cabinGeom, bodyMat);
-            cabin.position.set(0, 3.5, -2);
+            const cabinGeom = new THREE.BoxGeometry(7, 4, 7);
+            const cabinMat = new THREE.MeshPhongMaterial({ color: 0x333333 });
+            const cabin = new THREE.Mesh(cabinGeom, cabinMat);
+            cabin.position.set(0, 5, -3);
             trainGroup.add(cabin);
 
-            // Point Light from train
-            const trainLight = new THREE.PointLight(0x00e5ff, 500, 50);
-            trainLight.position.set(0, 5, 0);
-            trainGroup.add(trainLight);
+            // Nose
+            const noseGeom = new THREE.CylinderGeometry(3, 3, 4, 32);
+            noseGeom.rotateX(Math.PI / 2);
+            const nose = new THREE.Mesh(noseGeom, bodyMat);
+            nose.position.set(0, -1, 8);
+            trainGroup.add(nose);
 
             train = trainGroup;
             scene.add(train);
+        }
+
+        function updateCamera() {
+            if (!train || !routeCurve) return;
+
+            const pos = train.position.clone();
+            const forward = new THREE.Vector3(0, 0, 1).applyQuaternion(train.quaternion).normalize();
+            const up = new THREE.Vector3(0, 1, 0);
+            const side = new THREE.Vector3().crossVectors(forward, up).normalize();
+
+            if (cameraMode === 'FOLLOW') {
+                const targetPos = pos.clone().sub(forward.clone().multiplyScalar(60)).add(up.clone().multiplyScalar(30));
+                camera.position.lerp(targetPos, 0.1);
+                camera.lookAt(pos.clone().add(forward.clone().multiplyScalar(20)));
+            }
+            else if (cameraMode === 'TOP') {
+                const targetPos = pos.clone().add(up.clone().multiplyScalar(200));
+                camera.position.lerp(targetPos, 0.1);
+                camera.lookAt(pos);
+            }
+            else if (cameraMode === 'SIDE') {
+                const targetPos = pos.clone().add(side.clone().multiplyScalar(80)).add(up.clone().multiplyScalar(20));
+                camera.position.lerp(targetPos, 0.1);
+                camera.lookAt(pos);
+            }
         }
 
         function onWindowResize() {
@@ -279,7 +349,10 @@
 
         function animate() {
             requestAnimationFrame(animate);
-            controls.update();
+
+            if (cameraMode === 'FREE') {
+                controls.update();
+            }
 
             if (train && routeCurve) {
                 fraction += trainSpeed;
@@ -290,6 +363,8 @@
 
                 train.position.copy(position);
                 train.lookAt(nextPosition);
+
+                updateCamera();
 
                 // Update UI based on current index
                 const idx = Math.floor(fraction * pointsData.length);

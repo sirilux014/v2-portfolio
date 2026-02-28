@@ -329,6 +329,11 @@
                 camera.position.lerp(targetPos, 0.1);
                 camera.lookAt(pos.clone().add(forward.clone().multiplyScalar(20)));
             }
+            else if (cameraMode === 'DRIVER') {
+                const targetPos = pos.clone().add(forward.clone().multiplyScalar(8)).add(up.clone().multiplyScalar(4));
+                camera.position.copy(targetPos);
+                camera.lookAt(pos.clone().add(forward.clone().multiplyScalar(50)));
+            }
             else if (cameraMode === 'TOP') {
                 const targetPos = pos.clone().add(up.clone().multiplyScalar(200));
                 camera.position.lerp(targetPos, 0.1);

@@ -196,12 +196,14 @@
             client.on('connect', () => {
                 dot.classList.add('active');
                 statusText.innerText = 'ONLINE';
-                client.subscribe('DUSTBOY/+/+/+/status');
+                // Subscribe to EVERY DUSTBOY topic to capture all metadata
+                client.subscribe('DUSTBOY/#');
             });
 
             client.on('message', (topic, message) => {
                 const msgStr = message.toString();
-                console.log(`Topic: ${topic} | Message: ${msgStr}`);
+                // Extremely verbose logging to debug exact data format
+                console.log(`[MQTT] Topic: ${topic} | Payload: ${msgStr.substring(0, 100)}${msgStr.length > 100 ? '...' : ''}`);
 
                 try {
                     // Handling raw "offline" string
@@ -210,8 +212,8 @@
                         return;
                     }
 
-                    // Handling raw numbers (some MQTT bridges send direct values)
-                    if (!isNaN(msgStr) && msgStr.trim() !== '') { // Added trim() to handle potential whitespace
+                    // Handling raw numbers
+                    if (!isNaN(msgStr) && msgStr.trim() !== '') {
                         onDataReceived(topic, { pm25: parseFloat(msgStr) });
                         return;
                     }
@@ -220,7 +222,7 @@
                     const data = rawData.data || rawData;
                     onDataReceived(topic, data);
                 } catch (e) {
-                    console.warn('Non-JSON message received:', msgStr);
+                    // console.warn('Non-JSON message received:', msgStr);
                 }
             });
 
@@ -229,15 +231,19 @@
                 dot.classList.remove('active');
                 console.error('MQTT Error:', err);
             });
-
         }
 
         function onDataReceived(topic, data) {
-            // Topic format: DUSTBOY/REGION/PROVINCE/ID/status
             const parts = topic.split('/');
-            const id = parts[3] || 'Unknown';
+            // Smart ID extraction: find the part that looks like a station ID (e.g., N-xxx or just the last numeric part)
+            // If topic is DUSTBOY/Model-N/WiFi/N-172/status -> parts[3] is N-172
+            // If topic is DUSTBOY/N-143/status -> parts[1] is N-143
+            let id = 'Unknown';
+            if (parts.length >= 5) id = parts[3]; // Standard 5-level topic
+            else if (parts.length >= 3) id = parts[1]; // Narrow 3-level topic
+            else id = parts[parts.length - 2] || 'Unknown';
 
-            // Comprehensive field checking
+            // Comprehensive field checking - look for actual values
             const pm25 = parseFloat(
                 data.pm25 !== undefined ? data.pm25 :
                     data.pm2_5 !== undefined ? data.pm2_5 :
@@ -245,76 +251,68 @@
                             data.value !== undefined ? data.value : 0
             );
 
-            const pm10 = parseFloat(data.pm10 || data.pm10_value || 0);
+            // Ignore 0 values if they come from an 'offline' status in the same topic
+            if (pm25 === 0 && data.status !== 'offline' && !topic.includes('status')) {
+                // If it's a 0 but doesn't explicitly say offline, maybe it's just a pulse or metadata we ignore
+                // return; 
+            }
+
             const nickname = data.nickname || data.nickname_th || id;
-            const isOffline = data.status === 'offline' || (typeof data === 'string' && data === 'offline');
+            const isOffline = data.status === 'offline' || (typeof data === 'string' && data === 'offline') || topic.endsWith('/offline');
 
             if (!stationMeshes.has(id)) {
-                // Create New Entity
                 const group = new THREE.Group();
-
-                // Crystal Core
                 const geo = new THREE.IcosahedronGeometry(20, 0);
-                const mat = new THREE.MeshPhongMaterial({
-                    color: 0x00e5ff,
-                    wireframe: true,
-                    transparent: true,
-                    opacity: 0.6
-                });
+                const mat = new THREE.MeshPhongMaterial({ color: 0x00e5ff, wireframe: true, transparent: true, opacity: 0.6 });
                 const mesh = new THREE.Mesh(geo, mat);
                 group.add(mesh);
 
-                // Inner Glow
                 const innerGeo = new THREE.IcosahedronGeometry(10, 0);
                 const innerMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
                 const innerMesh = new THREE.Mesh(innerGeo, innerMat);
                 group.add(innerMesh);
 
-                // Random Position on Grid
-                group.position.set(
-                    THREE.MathUtils.randFloatSpread(1200),
-                    THREE.MathUtils.randFloat(0, 400),
-                    THREE.MathUtils.randFloatSpread(1200)
-                );
-
+                group.position.set(THREE.MathUtils.randFloatSpread(1500), THREE.MathUtils.randFloat(0, 500), THREE.MathUtils.randFloatSpread(1500));
                 scene.add(group);
                 stationMeshes.set(id, group);
 
-                // Label
                 const labelDiv = document.createElement('div');
                 labelDiv.className = 'station-label';
                 labelDiv.innerHTML = `${nickname}<br><span class="pm-bubble" id="pm-${id}">${pm25}</span>`;
                 const label = new CSS2DObject(labelDiv);
-                label.position.set(0, 50, 0);
+                label.position.set(0, 55, 0);
                 group.add(label);
                 stationLabels.set(id, labelDiv);
 
                 document.getElementById('node-count').innerText = stationMeshes.size;
             }
 
-            // Update Animation & Data
             const group = stationMeshes.get(id);
             const core = group.children[1];
             const shell = group.children[0];
             const pmBubble = document.getElementById(`pm-${id}`);
-            if (pmBubble) pmBubble.innerText = isOffline ? 'OFFLINE' : pm25.toFixed(1);
 
-            // Color Logic
-            let color = new THREE.Color(0x00e676); // Good
-            if (isOffline) color = new THREE.Color(0x333333); // Gray for offline
-            else if (pm25 > 150) color = new THREE.Color(0xff1744); // Hazardous
-            else if (pm25 > 55) color = new THREE.Color(0xff9100); // Unhealthy
-            else if (pm25 > 35) color = new THREE.Color(0xffea00); // Moderate
+            if (pmBubble) {
+                if (isOffline) {
+                    pmBubble.innerText = 'OFF';
+                    pmBubble.style.color = '#555';
+                } else {
+                    pmBubble.innerText = pm25.toFixed(1);
+                    pmBubble.style.color = '#00e5ff';
+                }
+            }
 
-            core.material.color.lerp(color, 0.1);
-            shell.material.color.lerp(color, 0.1);
+            let color = new THREE.Color(0x00e676);
+            if (isOffline) color = new THREE.Color(0x222222);
+            else if (pm25 > 150) color = new THREE.Color(0xff1744);
+            else if (pm25 > 55) color = new THREE.Color(0xff9100);
+            else if (pm25 > 35) color = new THREE.Color(0xffea00);
 
-            // Scale effect based on PM2.5 (only if online)
-            const targetScale = isOffline ? 0.5 : Math.max(0.5, Math.min(pm25 / 40, 5));
-            new TWEEN.Tween(group.scale)
-                .to({ x: targetScale, y: targetScale, z: targetScale }, 1000)
-                .easing(TWEEN.Easing.Elastic.Out)
-                .start();
+            core.material.color.lerp(color, 0.2);
+            shell.material.color.lerp(color, 0.2);
+
+            const targetScale = isOffline ? 0.3 : Math.max(0.5, Math.min(pm25 / 30, 6));
+            new TWEEN.Tween(group.scale).to({ x: targetScale, y: targetScale, z: targetScale }, 800).easing(TWEEN.Easing.Quadratic.Out).start();
         }
 
         function onWindowResize() {

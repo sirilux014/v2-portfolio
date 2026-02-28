@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand IK | Smile Oracle</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+        }
+
+        #video-container {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 240px;
+            height: 180px;
+            border: 2px solid #00e5ff;
+            border-radius: 10px;
+            overflow: hidden;
+            z-index: 10;
+            transform: scaleX(-1);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        #canvas-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .ui {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        .ui h1 {
+            margin: 0;
+            font-size: 1.5rem;
+            letter-spacing: 4px;
+            color: #00e5ff;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        }
+
+        .ui p {
+            font-size: 0.8rem;
+            opacity: 0.7;
+        }
+
+        .status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: #00e5ff;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 280px;
+            z-index: 100;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00e5ff;
+            color: #00e5ff;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="video-container">
+        <video id="input-video" playsinline></video>
+    </div>
+    <a href="index.html" class="back-btn">RETURN TO MAP</a>
+    <div class="status" id="status">INITIALIZING NEURAL ENGINE...</div>
+    <div class="ui">
+        <h1>HAND IK AWAKENED</h1>
+        <p>REACH OUT YOUR HAND TO CONTROL THE QUANTUM CORE</p>
+    </div>
+    <div id="canvas-container"></div>
+
+    <!-- Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        const videoElement = document.getElementById('input-video');
+        const statusEl = document.getElementById('status');
+        let hands, camera;
+
+        // --- Three.js Setup ---
+        const scene = new THREE.Scene();
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        const mainCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        mainCamera.position.z = 5;
+
+        // Quantum Core (The object we control)
+        const coreGroup = new THREE.Group();
+        scene.add(coreGroup);
+
+        const coreGeo = new THREE.IcosahedronGeometry(1, 1);
+        const coreMat = new THREE.MeshPhongMaterial({
+            color: 0x00e5ff,
+            wireframe: true,
+            emissive: 0x00e5ff,
+            emissiveIntensity: 0.5
+        });
+        const core = new THREE.Mesh(coreGeo, coreMat);
+        coreGroup.add(core);
+
+        const innerGeo = new THREE.IcosahedronGeometry(0.4, 0);
+        const innerMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
+        const inner = new THREE.Mesh(innerGeo, innerMat);
+        coreGroup.add(inner);
+
+        // Lights
+        const light = new THREE.PointLight(0x00e5ff, 1, 100);
+        light.position.set(5, 5, 5);
+        scene.add(light);
+        scene.add(new THREE.AmbientLight(0x404040));
+
+        // Background Particles
+        const partGeo = new THREE.BufferGeometry();
+        const partCount = 500;
+        const posArray = new Float32Array(partCount * 3);
+        for (let i = 0; i < partCount * 3; i++) posArray[i] = (Math.random() - 0.5) * 20;
+        partGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const partMat = new THREE.PointsMaterial({ size: 0.05, color: 0x00e5ff });
+        const particles = new THREE.Points(partGeo, partMat);
+        scene.add(particles);
+
+        // --- MediaPipe Hands Setup ---
+        function onResults(results) {
+            statusEl.innerText = results.multiHandLandmarks.length > 0 ? "HAND DETECTED: TRACKING..." : "SEARCHING FOR HAND...";
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const hand = results.multiHandLandmarks[0];
+                // Index finger tip (Landmark 8)
+                const tip = hand[8];
+
+                // Map screen coordinates to 3D world coordinates
+                // MediaPipe tip coordinates are 0-1
+                const targetX = (0.5 - tip.x) * 10;
+                const targetY = (0.5 - tip.y) * 10;
+                const targetZ = (0.5 - tip.z) * 5;
+
+                // Smoothly interpolate the core position
+                coreGroup.position.x += (targetX - coreGroup.position.x) * 0.1;
+                coreGroup.position.y += (targetY - coreGroup.position.y) * 0.1;
+                coreGroup.rotation.y += 0.05;
+                coreGroup.rotation.x += 0.02;
+
+                // Pulse effect
+                const scale = 1 + Math.sin(Date.now() * 0.01) * 0.1;
+                inner.scale.set(scale, scale, scale);
+            }
+        }
+
+        hands = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+        });
+
+        hands.setOptions({
+            maxNumHands: 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+
+        hands.onResults(onResults);
+
+        camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({ image: videoElement });
+            },
+            width: 640,
+            height: 480
+        });
+
+        camera.start().then(() => {
+            statusEl.innerText = "CAMERA ONLINE: PLEASE SHOW YOUR HAND";
+        });
+
+        // --- Render Loop ---
+        function animate() {
+            requestAnimationFrame(animate);
+            particles.rotation.y += 0.001;
+            renderer.render(scene, mainCamera);
+        }
+
+        window.addEventListener('resize', () => {
+            mainCamera.aspect = window.innerWidth / window.innerHeight;
+            mainCamera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+
+</html>

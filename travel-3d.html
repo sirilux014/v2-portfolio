@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Travel Journey | Smile Oracle</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --accent-color: #00e5ff;
+            --text-color: #ffffff;
+            --panel-bg: rgba(20, 20, 20, 0.85);
+        }
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: var(--bg-color);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-color);
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin: 0;
+            background: linear-gradient(90deg, #fff, var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status-box {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--panel-bg);
+            backdrop-filter: blur(15px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            display: flex;
+            gap: 40px;
+            align-items: center;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.1);
+        }
+
+        .status-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .status-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .status-value {
+            font-size: 1rem;
+            color: var(--accent-color);
+            font-weight: 600;
+        }
+
+        .controls-hint {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-align: right;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 10px;
+            right: 15px;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="overlay">
+        <h1 class="title">THE NEON EXPRESS</h1>
+    </div>
+
+    <div class="controls-hint">
+        LEFT CLICK: ROTATE<br>
+        RIGHT CLICK: PAN<br>
+        SCROLL: ZOOM
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <div class="status-box">
+        <div class="status-item">
+            <span class="status-label">Current Location</span>
+            <span class="status-value" id="loc">Detecting...</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Battery Level</span>
+            <span class="status-value" id="batt">--%</span>
+        </div>
+        <div class="status-item">
+            <span class="status-label">Speed</span>
+            <span class="status-value">Normal</span>
+        </div>
+    </div>
+
+    <div class="footer">
+        3D SIMULATION BY SMILE ORACLE
+    </div>
+
+    <!-- Scripts -->
+    <script async src="https://unpkg.com/es-module-shims@1.8.0/dist/es-module-shims.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.156.1/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.156.1/examples/jsm/"
+        }
+    }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- Configuration ---
+        let scene, camera, renderer, controls;
+        let train, routeCurve;
+        let pointsData = [];
+        let waypoints = [];
+        let fraction = 0;
+        const trainSpeed = 0.0005; // speed along path
+
+        // --- Init Function ---
+        function init() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x050505);
+            scene.fog = new THREE.FogExp2(0x050505, 0.002);
+
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 5000);
+            camera.position.set(100, 100, 200);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+            scene.add(ambientLight);
+
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444, 0.5);
+            scene.add(hemiLight);
+
+            // Grid Floor
+            const grid = new THREE.GridHelper(2000, 50, 0x00e5ff, 0x222222);
+            grid.position.y = -5;
+            scene.add(grid);
+
+            // Start Loading Data
+            loadCSV();
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
+        }
+
+        async function loadCSV() {
+            const response = await fetch('travel-phitsanulok.csv');
+            const csvText = await response.text();
+
+            Papa.parse(csvText, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
+                complete: function (results) {
+                    pointsData = results.data;
+                    processPoints();
+                }
+            });
+        }
+
+        function processPoints() {
+            if (pointsData.length === 0) return;
+
+            // Simple Projection: Normalize base coordinates
+            // Use Phitsanulok roughly as center for coordinate system
+            const centerLat = 17.5;
+            const centerLon = 99.5;
+            const scale = 500; // units per degree
+
+            waypoints = pointsData.map(pt => {
+                if (!pt.lat || !pt.lon) return null;
+                return new THREE.Vector3(
+                    (pt.lon - centerLon) * scale,
+                    0,
+                    (centerLat - pt.lat) * scale // Z is flipped in 3D maps usually
+                );
+            }).filter(p => p !== null);
+
+            if (waypoints.length < 2) return;
+
+            // Create Curve
+            routeCurve = new THREE.CatmullRomCurve3(waypoints);
+
+            // Draw route on ground
+            const pathPoints = routeCurve.getPoints(500);
+            const pathGeometry = new THREE.BufferGeometry().setFromPoints(pathPoints);
+            const pathMaterial = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.5 });
+            const pathLine = new THREE.Line(pathGeometry, pathMaterial);
+            scene.add(pathLine);
+
+            createTrain();
+        }
+
+        function createTrain() {
+            const trainGroup = new THREE.Group();
+
+            // Engine Body
+            const bodyGeom = new THREE.BoxGeometry(6, 4, 12);
+            const bodyMat = new THREE.MeshPhongMaterial({ color: 0x222222, shininess: 100 });
+            const body = new THREE.Mesh(bodyGeom, bodyMat);
+            trainGroup.add(body);
+
+            // Neon details
+            const neonGeom = new THREE.BoxGeometry(6.2, 0.5, 12.2);
+            const neonMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff });
+            const neonLine = new THREE.Mesh(neonGeom, neonMat);
+            neonLine.position.y = -1.8;
+            trainGroup.add(neonLine);
+
+            const cabinGeom = new THREE.BoxGeometry(5, 3, 5);
+            const cabin = new THREE.Mesh(cabinGeom, bodyMat);
+            cabin.position.set(0, 3.5, -2);
+            trainGroup.add(cabin);
+
+            // Point Light from train
+            const trainLight = new THREE.PointLight(0x00e5ff, 500, 50);
+            trainLight.position.set(0, 5, 0);
+            trainGroup.add(trainLight);
+
+            train = trainGroup;
+            scene.add(train);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+
+            if (train && routeCurve) {
+                fraction += trainSpeed;
+                if (fraction > 1) fraction = 0;
+
+                const position = routeCurve.getPointAt(fraction);
+                const nextPosition = routeCurve.getPointAt((fraction + 0.001) % 1);
+
+                train.position.copy(position);
+                train.lookAt(nextPosition);
+
+                // Update UI based on current index
+                const idx = Math.floor(fraction * pointsData.length);
+                const currentData = pointsData[Math.min(idx, pointsData.length - 1)];
+                if (currentData) {
+                    document.getElementById('loc').innerText = currentData.locality || "On Transit";
+                    document.getElementById('batt').innerText = currentData.battery + "%";
+                }
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

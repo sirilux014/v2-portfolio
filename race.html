@@ -49,7 +49,6 @@
             justify-content: center;
         }
 
-        /* SETUP */
         #S1 {
             background: radial-gradient(ellipse at 50% -10%, rgba(0, 229, 255, .12) 0%, rgba(100, 0, 200, .08) 60%, transparent 80%), var(--bg);
             padding: 2rem;
@@ -61,7 +60,7 @@
             content: '';
             position: absolute;
             inset: 0;
-            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300e5ff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2300e5ff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
             pointer-events: none;
         }
 
@@ -98,14 +97,12 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             letter-spacing: -1px;
-            text-shadow: none;
         }
 
         .logo p {
             color: var(--muted);
             font-size: .82rem;
             margin-top: .4rem;
-            letter-spacing: .5px;
         }
 
         .setup-card {
@@ -232,13 +229,9 @@
             overflow: hidden;
         }
 
-        .sbtn::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(135deg, var(--purple), var(--cyan));
-            opacity: 0;
-            transition: opacity .25s;
+        .sbtn span {
+            position: relative;
+            z-index: 1;
         }
 
         .sbtn:hover:not(:disabled) {
@@ -246,21 +239,11 @@
             box-shadow: 0 8px 40px rgba(0, 229, 255, 0.5);
         }
 
-        .sbtn:hover:not(:disabled)::after {
-            opacity: 1;
-        }
-
-        .sbtn span {
-            position: relative;
-            z-index: 1;
-        }
-
         .sbtn:disabled {
             opacity: .3;
             cursor: not-allowed;
         }
 
-        /* GAME */
         #S2 {
             display: none;
             flex-direction: column;
@@ -287,14 +270,14 @@
             display: flex;
             flex-direction: column;
             gap: .35rem;
-            margin-top: .65rem;
+            margin-top: .6rem;
         }
 
         .pbar {
             background: rgba(15, 20, 40, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 10px;
-            padding: 8px 14px;
+            padding: 7px 14px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -319,12 +302,10 @@
             height: 100%;
             border-radius: 4px;
             transition: width .12s ease;
-            box-shadow: 0 0 8px currentColor;
         }
 
-        /* FINISH */
         #S3 {
-            background: radial-gradient(ellipse at 50% 20%, rgba(251, 191, 36, .15) 0%, rgba(0, 229, 255, .05) 50%, transparent 70%), var(--bg);
+            background: radial-gradient(ellipse at 50% 20%, rgba(251, 191, 36, .15) 0%, transparent 60%), var(--bg);
             padding: 2rem;
             gap: 1rem;
         }
@@ -365,7 +346,6 @@
             letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--yellow);
-            margin: .5rem 0 .25rem;
         }
 
         .wchar2 {
@@ -456,17 +436,37 @@
             justify-content: center;
             margin-top: .5rem;
         }
+
+        .legend {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: .75rem 1rem;
+            font-size: .75rem;
+            color: var(--muted);
+            margin-top: .5rem;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .legend span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- ── SETUP ── -->
+    <!-- SETUP -->
     <div id="S1" class="screen active">
         <div class="logo">
             <span class="logo-e">⚡</span>
             <h1>Oracle Sprint</h1>
-            <p>[ SPACE ] พุ่ง · [ SHIFT ] กระโดด · Real-time Multiplayer</p>
+            <p>[ SPACE ] พุ่ง · [ SHIFT ] กระโดด · ระวังสิ่งกีดขวาง!</p>
         </div>
         <div class="setup-card">
             <label>Oracle Name</label>
@@ -481,15 +481,22 @@
             </div>
             <button id="btnStart" class="sbtn" disabled><span>⚡ ENTER THE RACE</span></button>
         </div>
+        <div class="legend">
+            <span>🪨 กระโดดข้าม</span>
+            <span>🔴 Bouncer — จังหวะ!</span>
+            <span>💧 โคลน — ช้าลง</span>
+            <span>⚡ Boost — เร็วขึ้น!</span>
+            <span>💪 Stamina — ระวังหมดแรง</span>
+        </div>
     </div>
 
-    <!-- ── GAME ── -->
+    <!-- GAME -->
     <div id="S2" class="screen">
         <canvas id="gameCanvas"></canvas>
         <div id="plist"></div>
     </div>
 
-    <!-- ── FINISH ── -->
+    <!-- FINISH -->
     <div id="S3" class="screen">
         <div class="wcard">
             <span class="wtrophy">🏆</span>
@@ -516,27 +523,42 @@
     </div>
 
     <script>
-        // ── CONSTANTS ──────────────────────────────────────
+        // ── CONFIG ─────────────────────────────────────────
         const BROKER = 'wss://dustboy-wss-bridge.laris.workers.dev/mqtt';
-        const HOF_TOPIC = 'OracleRace/v3/hof';
-        const W = 900, H = 340;
-        const ROAD_TOP = 160, ROAD_BOT = 272;
-        const GROUND_Y = 252; const PLAYER_X = 175;
+        const HOF_TOPIC = 'OracleRace/v4/hof';
+        const W = 900, H = 350;
+        const ROAD_TOP = 158, ROAD_BOT = 275;
+        const GROUND_Y = 255;
+        const PLAYER_X = 175;
         const TRACK_PX = 6000;
-        const STEP = 1.8;
-        const GRAVITY = 0.52; const JUMP_POWER = -14;
+        const BASE_STEP = 1.8;
+        const GRAVITY = 0.52;
+        const JUMP_POWER = -14;
         const JUMP_CLEAR = -30;
-        const OBS_PCTS = [15, 28, 42, 56, 70, 84];
+        const STAM_MAX = 100;
+        const STAM_DRAIN = 8;
+        const STAM_REGEN = 0.45;
+
+        // Obstacle definitions: rock=jump, bouncer=timed jump, mud=slow, boost=speed!
+        const OBSTACLES = [
+            { pct: 12, type: 'rock' },
+            { pct: 22, type: 'mud' },
+            { pct: 34, type: 'bouncer' },
+            { pct: 44, type: 'boost' },
+            { pct: 54, type: 'rock' },
+            { pct: 62, type: 'mud' },
+            { pct: 71, type: 'bouncer' },
+            { pct: 80, type: 'boost' },
+            { pct: 87, type: 'rock' },
+            { pct: 93, type: 'bouncer' },  // hardest — near finish!
+            { pct: 97, type: 'rock' },     // last wall before finish
+        ];
 
         const CHARS = [
-            { e: '🌊', n: 'Water', c: '#00e5ff' },
-            { e: '🔥', n: 'Fire', c: '#ff4500' },
-            { e: '⚡', n: 'Lightning', c: '#fbbf24' },
-            { e: '🌿', n: 'Nature', c: '#00ff88' },
-            { e: '🌙', n: 'Moon', c: '#bf5fff' },
-            { e: '⭐', n: 'Star', c: '#f59e0b' },
-            { e: '🐉', n: 'Dragon', c: '#ef4444' },
-            { e: '🦋', n: 'Spirit', c: '#f472b6' },
+            { e: '🌊', n: 'Water', c: '#00e5ff' }, { e: '🔥', n: 'Fire', c: '#ff4500' },
+            { e: '⚡', n: 'Lightning', c: '#fbbf24' }, { e: '🌿', n: 'Nature', c: '#00ff88' },
+            { e: '🌙', n: 'Moon', c: '#bf5fff' }, { e: '⭐', n: 'Star', c: '#f59e0b' },
+            { e: '🐉', n: 'Dragon', c: '#ef4444' }, { e: '🦋', n: 'Spirit', c: '#f472b6' },
         ];
 
         // ── STATE ──────────────────────────────────────────
@@ -544,61 +566,48 @@
         let myName = '', myCharObj = CHARS[0], myRoom = 'Oracle';
         let myPos = 0, myYOff = 0, myJumpV = 0;
         let myFinished = false, myFinishTime = null;
-        let hitCD = 0, frameN = 0, shakeX = 0, shakeY = 0, shakeAmt = 0;
-        let gamePhase = 'setup';
-        let cdVal = 3, startTime = null, elapsed = 0;
+        let hitCD = 0, frameN = 0, shakeAmt = 0, shakeX = 0, shakeY = 0;
+        let gamePhase = 'setup', cdVal = 3, startTime = null, elapsed = 0;
         let players = {}, hallOfFame = [], winnerSet = false;
         let client = null, lastPub = 0;
-
-        // Combo system
-        let combo = 0, lastSpaceMs = 0;
-        const COMBO_WIN = 550;
-        let comboFlash = 0;
-
-        // Particles
+        let combo = 0, lastSpaceMs = 0, comboFlash = 0;
+        let stamina = STAM_MAX;
+        let boostTimer = 0, slowTimer = 0;
+        let collectedBoosts = new Set();
         let parts = [];
-        function addParts(x, y, color, n = 5, type = 'spark') {
-            for (let i = 0; i < n; i++) {
-                const a = Math.random() * Math.PI * 2;
-                const sp = 1 + Math.random() * 4;
-                parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, color, life: 20 + Math.random() * 20, maxLife: 40, type, r: type === 'confetti' ? 4 + Math.random() * 4 : 2 + Math.random() * 2 });
-            }
-        }
 
-        // Stars (static world)
-        const STARS = Array.from({ length: 120 }, () => ({ wx: Math.random() * 8000, y: 5 + Math.random() * (ROAD_TOP - 20), r: Math.random() * 1.4 + 0.3, phase: Math.random() * Math.PI * 2 }));
-        // Trees
+        // Pre-generate scenery
+        const STARS = Array.from({ length: 130 }, () => ({ wx: Math.random() * 9000, y: 5 + Math.random() * (ROAD_TOP - 25), r: Math.random() * 1.4 + 0.3, ph: Math.random() * Math.PI * 2 }));
         const TREES = [];
-        for (let i = 0; i < 32; i++) {
-            const wx = i * 200 + (i * 73) % 110;
-            TREES.push({ wx, y: ROAD_TOP - 8 - (i * 29) % 54, sz: 32 + (i * 7) % 22, e: ['🌲', '🌲', '🌳', '🌴', '🌲'][i % 5], top: true, speed: 0.62 });
-            TREES.push({ wx: wx + 95 + ((i * 61) % 90), y: ROAD_BOT + 28 + (i * 13) % 26, sz: 30 + (i * 11) % 18, e: ['🌲', '🌴', '🌳', '🌿'][i % 4], top: false, speed: 0.68 });
+        for (let i = 0; i < 34; i++) {
+            const wx = i * 210 + (i * 73) % 110;
+            TREES.push({ wx, y: ROAD_TOP - 8 - (i * 29) % 54, sz: 32 + (i * 7) % 22, e: ['🌲', '🌲', '🌳', '🌴', '🌲'][i % 5], top: true, sp: 0.62 });
+            TREES.push({ wx: wx + 100 + ((i * 61) % 90), y: ROAD_BOT + 28 + (i * 13) % 26, sz: 30 + (i * 11) % 18, e: ['🌲', '🌴', '🌳', '🌿'][i % 4], top: false, sp: 0.68 });
         }
         const CLOUDS = Array.from({ length: 8 }, (_, i) => ({ wx: i * 1000 + (i * 177) % 350, y: 12 + (i * 41) % 55 }));
 
-        // Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = W; canvas.height = H;
 
-        // Web Audio
+        // ── AUDIO ──────────────────────────────────────────
         let audioCtx = null;
-        function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
-        function tone(freq, dur, vol = 0.12, type = 'sine', delay = 0) {
+        function getA() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+        function tone(f, d, v = 0.1, t = 'sine', dl = 0) {
             try {
-                const a = getAudio();
-                const o = a.createOscillator(), g = a.createGain();
-                o.connect(g); g.connect(a.destination);
-                o.type = type; o.frequency.value = freq;
-                g.gain.setValueAtTime(vol, a.currentTime + delay);
-                g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + delay + dur);
-                o.start(a.currentTime + delay); o.stop(a.currentTime + delay + dur);
+                const a = getA(), o = a.createOscillator(), g = a.createGain();
+                o.connect(g); g.connect(a.destination); o.type = t; o.frequency.value = f;
+                g.gain.setValueAtTime(v, a.currentTime + dl); g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + dl + d);
+                o.start(a.currentTime + dl); o.stop(a.currentTime + dl + d);
             } catch (_) { }
         }
-        function sndStep() { tone(300, 0.04, 0.06, 'square'); }
-        function sndJump() { tone(500, 0.12, 0.1, 'sine'); tone(700, 0.12, 0.06, 'sine', 0.06); }
+        function sndStep() { tone(280 + stamina * 1.5, 0.04, 0.06, 'square'); }
+        function sndJump() { tone(500, 0.1, 0.1, 'sine'); tone(700, 0.1, 0.05, 'sine', 0.06); }
         function sndHit() { tone(80, 0.25, 0.15, 'sawtooth'); tone(60, 0.3, 0.1, 'square', 0.05); }
-        function sndCombo() { tone(600 + combo * 80, 0.08, 0.1, 'sine'); }
+        function sndMud() { tone(120, 0.3, 0.12, 'sawtooth'); tone(90, 0.2, 0.08, 'sine', 0.08); }
+        function sndBoost() { tone(700, 0.1, 0.12, 'sine'); tone(900, 0.1, 0.08, 'sine', 0.08); tone(1100, 0.15, 0.06, 'sine', 0.16); }
+        function sndCombo() { tone(500 + combo * 60, 0.07, 0.08, 'sine'); }
+        function sndTired() { tone(120, 0.2, 0.1, 'sawtooth'); }
         function sndWin() { [262, 330, 392, 523, 659].forEach((f, i) => tone(f, 0.25, 0.12, 'sine', i * 0.14)); }
 
         // ── HELPERS ───────────────────────────────────────
@@ -606,135 +615,153 @@
         function glow(c, b = 20) { ctx.shadowColor = c; ctx.shadowBlur = b; }
         function noglow() { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
 
-        // ── DRAW ──────────────────────────────────────────
+        function getBounceY(obs) {
+            const phase = (obs.pct * 3.7) % (Math.PI * 2);
+            const t = frameN * 0.052 + phase;
+            // Y oscillates: GROUND_Y (low, dangerous) to GROUND_Y-72 (high, safe to pass under)
+            return GROUND_Y - 36 + Math.sin(t) * 36;
+        }
+        function isBounceDangerous(obs) { return getBounceY(obs) > GROUND_Y - 32; }
+
+        // ── PARTICLES ─────────────────────────────────────
+        function addParts(x, y, color, n, type = 'spark') {
+            for (let i = 0; i < n; i++) {
+                const a = Math.random() * Math.PI * 2, sp = 1 + Math.random() * 4;
+                parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, color, life: 20 + Math.random() * 20, maxLife: 40, r: type === 'confetti' ? 4 + Math.random() * 4 : 2 + Math.random() * 2, type });
+            }
+        }
+
+        // ── DRAW BACKGROUND ───────────────────────────────
         function drawBG() {
-            // Neon night sky
             const sky = ctx.createLinearGradient(0, 0, 0, ROAD_TOP);
-            sky.addColorStop(0, '#020614');
-            sky.addColorStop(0.6, '#0a1028');
-            sky.addColorStop(1, '#0d1a40');
+            sky.addColorStop(0, '#020614'); sky.addColorStop(0.7, '#0a1028'); sky.addColorStop(1, '#0d1a40');
             ctx.fillStyle = sky; ctx.fillRect(0, 0, W, ROAD_TOP);
-            // Stars
             STARS.forEach(s => {
-                const sx = w2s(s.wx * 0.05);
+                const sx = w2s(s.wx * 0.045);
                 if (sx < 0 || sx > W) return;
-                const bri = 0.4 + 0.6 * Math.sin(frameN * 0.05 + s.phase);
+                const bri = 0.3 + 0.7 * Math.sin(frameN * 0.05 + s.ph);
                 ctx.fillStyle = `rgba(255,255,255,${bri})`;
                 ctx.beginPath(); ctx.arc(sx, s.y, s.r, 0, Math.PI * 2); ctx.fill();
             });
-            // Clouds (ultra slow)
             CLOUDS.forEach(c => {
-                const sx = w2s(c.wx * 0.04);
+                const sx = w2s(c.wx * 0.035);
                 if (sx < -80 || sx > W + 80) return;
-                ctx.globalAlpha = 0.25;
-                ctx.font = '30px serif';
-                ctx.fillText('☁️', sx, c.y);
-                ctx.fillText('☁️', sx + 34, c.y - 6);
-                ctx.globalAlpha = 1;
+                ctx.globalAlpha = 0.25; ctx.font = '30px serif';
+                ctx.fillText('☁️', sx, c.y); ctx.fillText('☁️', sx + 34, c.y - 6); ctx.globalAlpha = 1;
             });
-            // Distant neon hills
             const mwx = (myPos / 100) * TRACK_PX;
-            ctx.fillStyle = '#0d1038';
-            ctx.beginPath(); ctx.moveTo(0, ROAD_TOP);
-            for (let x = 0; x <= W; x += 6) {
-                const hx = mwx * 0.04 + x;
-                const y = ROAD_TOP - 18 - 12 * Math.sin(hx / 280) - 8 * Math.sin(hx / 100);
-                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            }
+            ctx.fillStyle = '#0d1038'; ctx.beginPath(); ctx.moveTo(0, ROAD_TOP);
+            for (let x = 0; x <= W; x += 6) { const hx = mwx * 0.04 + x; const y = ROAD_TOP - 18 - 12 * Math.sin(hx / 280) - 8 * Math.sin(hx / 100); x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
             ctx.lineTo(W, ROAD_TOP); ctx.closePath(); ctx.fill();
-            // Hill neon outline
-            glow('#00e5ff', 8);
-            ctx.strokeStyle = 'rgba(0,229,255,0.3)'; ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            for (let x = 0; x <= W; x += 6) {
-                const hx = mwx * 0.04 + x;
-                const y = ROAD_TOP - 18 - 12 * Math.sin(hx / 280) - 8 * Math.sin(hx / 100);
-                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-            }
+            glow('#00e5ff', 8); ctx.strokeStyle = 'rgba(0,229,255,0.25)'; ctx.lineWidth = 1.5; ctx.beginPath();
+            for (let x = 0; x <= W; x += 6) { const hx = mwx * 0.04 + x; const y = ROAD_TOP - 18 - 12 * Math.sin(hx / 280) - 8 * Math.sin(hx / 100); x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y); }
             ctx.stroke(); noglow();
         }
 
         function drawRoad() {
-            // Road surface
             ctx.fillStyle = '#0a0f1c'; ctx.fillRect(0, ROAD_TOP, W, ROAD_BOT - ROAD_TOP);
-            // Road subtle grid
             ctx.strokeStyle = 'rgba(0,229,255,0.04)'; ctx.lineWidth = 1;
-            for (let y = ROAD_TOP; y < ROAD_BOT; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
-            // Top neon line
-            glow('#00e5ff', 18);
-            ctx.fillStyle = '#00e5ff'; ctx.fillRect(0, ROAD_TOP, W, 2.5);
-            // Bottom neon line
-            glow('#bf5fff', 18);
-            ctx.fillStyle = '#bf5fff'; ctx.fillRect(0, ROAD_BOT - 2.5, W, 2.5);
-            noglow();
-            // Center dashes
+            for (let y = ROAD_TOP; y < ROAD_BOT; y += 22) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+            glow('#00e5ff', 20); ctx.fillStyle = '#00e5ff'; ctx.fillRect(0, ROAD_TOP, W, 2.5);
+            glow('#bf5fff', 20); ctx.fillStyle = '#bf5fff'; ctx.fillRect(0, ROAD_BOT - 2.5, W, 2.5); noglow();
             const off = (((myPos / 100) * TRACK_PX) % 80);
             ctx.setLineDash([50, 30]); ctx.setLineDashOffset(-off);
-            glow('#fbbf24', 6);
-            ctx.strokeStyle = 'rgba(251,191,36,0.4)'; ctx.lineWidth = 2.5;
+            glow('#fbbf24', 6); ctx.strokeStyle = 'rgba(251,191,36,0.35)'; ctx.lineWidth = 2.5;
             ctx.beginPath(); ctx.moveTo(0, (ROAD_TOP + ROAD_BOT) / 2); ctx.lineTo(W, (ROAD_TOP + ROAD_BOT) / 2); ctx.stroke();
             ctx.setLineDash([]); ctx.setLineDashOffset(0); noglow();
-            // Start line
+            // Slow zone tint when sliding over mud
+            if (slowTimer > 0) {
+                ctx.fillStyle = `rgba(37,99,235,${Math.min(0.18, slowTimer / 150 * 0.18)})`;
+                ctx.fillRect(0, ROAD_TOP, W, ROAD_BOT - ROAD_TOP);
+            }
             drawCheckered(w2s(0), '#00ff88');
-            // Finish line
-            const sfx = w2s(TRACK_PX);
-            drawCheckered(sfx, '#fbbf24');
-            if (sfx > -10 && sfx < W + 10) { glow('#fbbf24', 20); ctx.font = '20px serif'; ctx.fillText('🏁', sfx - 8, ROAD_TOP - 8); noglow(); }
+            const sfx = w2s(TRACK_PX); drawCheckered(sfx, '#fbbf24');
+            if (sfx > -10 && sfx < W + 10) { glow('#fbbf24', 22); ctx.font = '22px serif'; ctx.fillText('🏁', sfx - 10, ROAD_TOP - 6); noglow(); }
         }
 
         function drawCheckered(sx, gc) {
             if (sx < -14 || sx > W + 14) return;
             const sqh = (ROAD_BOT - ROAD_TOP) / 8;
             for (let i = 0; i < 8; i++) { ctx.fillStyle = i % 2 === 0 ? '#eee' : '#111'; ctx.fillRect(sx - 5, ROAD_TOP + i * sqh, 10, sqh); }
-            glow(gc, 15);
-            ctx.strokeStyle = gc; ctx.lineWidth = 2;
-            ctx.strokeRect(sx - 5, ROAD_TOP, 10, ROAD_BOT - ROAD_TOP);
-            noglow();
+            glow(gc, 16); ctx.strokeStyle = gc; ctx.lineWidth = 2; ctx.strokeRect(sx - 5, ROAD_TOP, 10, ROAD_BOT - ROAD_TOP); noglow();
         }
 
         function drawTrees() {
             TREES.filter(t => t.top).forEach(t => {
-                const sx = w2s(t.wx * t.speed);
-                if (sx < -60 || sx > W + 60) return;
-                glow('#00ff88', 12);
-                ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y);
-                noglow();
+                const sx = w2s(t.wx * t.sp); if (sx < -60 || sx > W + 60) return;
+                glow('#00ff88', 10); ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y); noglow();
             });
         }
-        function drawGrassAndBotTrees() {
-            // Grass
+        function drawBotTrees() {
             const g = ctx.createLinearGradient(0, ROAD_BOT, 0, H);
             g.addColorStop(0, '#052e16'); g.addColorStop(1, '#14532d');
             ctx.fillStyle = g; ctx.fillRect(0, ROAD_BOT, W, H - ROAD_BOT);
-            // Bot trees
             TREES.filter(t => !t.top).forEach(t => {
-                const sx = w2s(t.wx * t.speed);
-                if (sx < -60 || sx > W + 60) return;
-                glow('#00ff88', 8);
-                ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y);
-                noglow();
+                const sx = w2s(t.wx * t.sp); if (sx < -60 || sx > W + 60) return;
+                glow('#00ff88', 8); ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y); noglow();
             });
         }
 
+        // ── DRAW OBSTACLES ────────────────────────────────
         function drawObstacles() {
-            OBS_PCTS.forEach((pct) => {
-                const sx = w2s((pct / 100) * TRACK_PX);
-                if (sx < -60 || sx > W + 80) return;
-                const pulse = Math.sin(frameN * 0.12) * 3;
-                glow('#ff2d55', 18 + pulse);
-                ctx.font = `${38 + pulse}px serif`; ctx.fillText('🪨', sx - 19, GROUND_Y + 6);
-                noglow();
+            OBSTACLES.forEach(obs => {
+                const sx = w2s((obs.pct / 100) * TRACK_PX);
+                if (sx < -80 || sx > W + 100) return;
+                const isCollected = (obs.type === 'boost' && collectedBoosts.has(obs.pct));
+                if (isCollected) {
+                    // Faint ring showing used boost
+                    ctx.strokeStyle = 'rgba(251,191,36,0.2)'; ctx.lineWidth = 2;
+                    ctx.beginPath(); ctx.arc(sx, GROUND_Y - 10, 18, 0, Math.PI * 2); ctx.stroke();
+                    return;
+                }
+                if (obs.type === 'rock') {
+                    const pulse = Math.sin(frameN * 0.12) * 2;
+                    glow('#ff2d55', 16 + pulse); ctx.font = `${38 + pulse}px serif`; ctx.fillText('🪨', sx - 19, GROUND_Y + 6); noglow();
+                }
+                else if (obs.type === 'bouncer') {
+                    const bY = getBounceY(obs);
+                    const dangerous = isBounceDangerous(obs);
+                    // Shadow on ground
+                    const shadowAlpha = dangerous ? 0.5 : 0.15;
+                    ctx.fillStyle = `rgba(255,45,85,${shadowAlpha})`;
+                    ctx.beginPath(); ctx.ellipse(sx, GROUND_Y + 8, 22, 7, 0, 0, Math.PI * 2); ctx.fill();
+                    // Bouncing rock
+                    glow(dangerous ? '#ff2d55' : '#888', dangerous ? 22 : 8);
+                    ctx.font = `${40}px serif`; ctx.fillText('🔴', sx - 20, bY); noglow();
+                    // Warning/safe indicator
+                    ctx.textAlign = 'center';
+                    if (dangerous) {
+                        const flash = Math.sin(frameN * 0.25) > 0;
+                        if (flash) { glow('#ff2d55', 15); ctx.fillStyle = '#ff2d55'; ctx.font = 'bold 11px Inter,sans-serif'; ctx.fillText('⚠ JUMP!', sx, bY - 28); noglow(); }
+                    } else {
+                        ctx.fillStyle = 'rgba(0,255,136,0.7)'; ctx.font = 'bold 10px Inter,sans-serif'; ctx.fillText('✓ RUN', sx, GROUND_Y - 15);
+                    }
+                    ctx.textAlign = 'left';
+                }
+                else if (obs.type === 'mud') {
+                    glow('#1d4ed8', 12);
+                    ctx.fillStyle = 'rgba(30,64,175,0.55)';
+                    ctx.beginPath(); ctx.ellipse(sx, GROUND_Y + 6, 30, 10, 0, 0, Math.PI * 2); ctx.fill(); noglow();
+                    ctx.font = '32px serif'; ctx.fillText('💧', sx - 16, GROUND_Y - 4);
+                    ctx.fillStyle = 'rgba(147,197,253,0.4)'; ctx.font = '9px Inter,sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText('SLOW', sx, GROUND_Y + 22); ctx.textAlign = 'left';
+                }
+                else if (obs.type === 'boost') {
+                    glow('#fbbf24', 22 + Math.sin(frameN * 0.15) * 8);
+                    ctx.font = '36px serif'; ctx.fillText('⚡', sx - 18, GROUND_Y - 2); noglow();
+                    ctx.fillStyle = 'rgba(251,191,36,0.5)'; ctx.font = 'bold 9px Inter,sans-serif'; ctx.textAlign = 'center';
+                    ctx.fillText('BOOST!', sx, GROUND_Y + 22); ctx.textAlign = 'left';
+                }
             });
         }
 
         function drawSpeedLines() {
-            if (combo < 2) return;
-            const alpha = Math.min(0.5, combo * 0.06);
-            ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-            ctx.lineWidth = 1;
-            for (let i = 0; i < 12; i++) {
+            if (combo < 2 && boostTimer <= 0) return;
+            const intensity = boostTimer > 0 ? 0.6 : Math.min(0.45, combo * 0.05);
+            ctx.strokeStyle = `rgba(255,255,255,${intensity})`; ctx.lineWidth = 1;
+            for (let i = 0; i < 14; i++) {
                 const y = ROAD_TOP + Math.random() * (ROAD_BOT - ROAD_TOP);
-                const len = 40 + combo * 15 + Math.random() * 60;
+                const len = boostTimer > 0 ? 120 + Math.random() * 120 : 40 + combo * 12 + Math.random() * 50;
                 ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(len, y); ctx.stroke();
             }
         }
@@ -742,12 +769,9 @@
         function drawOtherPlayers() {
             Object.values(players).forEach(p => {
                 if (p.id === myId) return;
-                const psx = w2s((p.pos / 100) * TRACK_PX);
-                if (psx < -80 || psx > W + 80) return;
-                const psy = GROUND_Y + (p.yOff || 0) - 8;
-                glow(p.color || '#fff', 12);
-                ctx.globalAlpha = 0.55;
-                ctx.font = '40px serif'; ctx.fillText(p.char, psx - 20, psy);
+                const psx = w2s((p.pos / 100) * TRACK_PX); if (psx < -80 || psx > W + 80) return;
+                glow(p.color || '#fff', 12); ctx.globalAlpha = 0.5;
+                ctx.font = '40px serif'; ctx.fillText(p.char, psx - 20, GROUND_Y + (p.yOff || 0) - 8);
                 ctx.globalAlpha = 1; noglow();
                 ctx.fillStyle = p.color || '#94a3b8'; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
                 ctx.fillText(p.name.substring(0, 12), psx, GROUND_Y + 18); ctx.textAlign = 'left';
@@ -757,11 +781,9 @@
         function drawMyPlayer() {
             if (hitCD > 0 && Math.floor(hitCD / 5) % 2 === 0) { ctx.globalAlpha = 0.2; }
             const tilt = (frameN % 28 < 14) ? 0.09 : -0.09;
-            const sy = GROUND_Y + myYOff - 10;
-            glow(myCharObj.c, 22);
-            ctx.save(); ctx.translate(PLAYER_X, sy); ctx.rotate(tilt);
-            ctx.font = '44px serif'; ctx.fillText(myCharObj.e, -22, 0);
-            ctx.restore();
+            glow(boostTimer > 0 ? '#fbbf24' : myCharObj.c, boostTimer > 0 ? 30 : 22);
+            ctx.save(); ctx.translate(PLAYER_X, GROUND_Y + myYOff - 10); ctx.rotate(tilt);
+            ctx.font = '44px serif'; ctx.fillText(myCharObj.e, -22, 0); ctx.restore();
             noglow(); ctx.globalAlpha = 1;
         }
 
@@ -769,151 +791,170 @@
             parts = parts.filter(p => p.life > 0);
             parts.forEach(p => {
                 p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life--;
-                const alpha = p.life / p.maxLife;
-                ctx.globalAlpha = alpha;
+                ctx.globalAlpha = p.life / p.maxLife;
                 if (p.type === 'confetti') {
-                    ctx.fillStyle = p.color;
-                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(frameN * 0.1 + p.vx);
+                    ctx.fillStyle = p.color; ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(frameN * 0.1 + p.vx);
                     ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r); ctx.restore();
                 } else {
-                    glow(p.color, 8);
-                    ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); noglow();
+                    glow(p.color, 8); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); noglow();
                 }
                 ctx.globalAlpha = 1;
             });
         }
 
         function drawHUD() {
-            // Timer
+            // ── Timer ──
             ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(W - 108, 8, 100, 36, 8); ctx.fill();
-            glow('#fbbf24', 10);
-            ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 19px "JetBrains Mono",monospace';
-            ctx.textAlign = 'right'; ctx.fillText(elapsed.toFixed(1) + 's', W - 14, 33);
-            ctx.textAlign = 'left'; noglow();
+            glow('#fbbf24', 10); ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 19px "JetBrains Mono",monospace';
+            ctx.textAlign = 'right'; ctx.fillText(elapsed.toFixed(1) + 's', W - 14, 33); ctx.textAlign = 'left'; noglow();
 
-            // Progress bar card
+            // ── Progress bar ──
             ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(8, 8, 225, 58, 10); ctx.fill();
             ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.roundRect(16, 40, 205, 12, 5); ctx.fill();
-            glow(myCharObj.c, 10);
-            ctx.fillStyle = myCharObj.c;
+            const barColor = boostTimer > 0 ? '#fbbf24' : slowTimer > 0 ? '#3b82f6' : myCharObj.c;
+            glow(barColor, 10); ctx.fillStyle = barColor;
             ctx.beginPath(); ctx.roundRect(16, 40, Math.min(205, (myPos / 100) * 205), 12, 5); ctx.fill(); noglow();
-            ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 12px Inter,sans-serif';
-            ctx.fillText(`${myCharObj.e} ${myName || 'You'}`, 14, 33);
-            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px Inter,sans-serif';
-            ctx.textAlign = 'right'; ctx.fillText(myPos.toFixed(1) + '%', 218, 33); ctx.textAlign = 'left';
+            ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 12px Inter,sans-serif'; ctx.fillText(`${myCharObj.e} ${myName || 'You'}`, 14, 33);
+            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px Inter,sans-serif'; ctx.textAlign = 'right'; ctx.fillText(myPos.toFixed(1) + '%', 218, 33); ctx.textAlign = 'left';
 
-            // Combo display
-            if (combo >= 2) {
-                const cf = Math.min(1, comboFlash / 15);
-                ctx.fillStyle = `rgba(251,191,36,${0.12 + cf * 0.2})`;
-                ctx.beginPath(); ctx.roundRect(8, 76, 225, 34, 8); ctx.fill();
-                glow('#fbbf24', comboFlash > 0 ? 20 : 0);
-                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 13px Inter,sans-serif';
-                ctx.fillText(`⚡ COMBO ×${combo}`, 14, 98); noglow();
+            // ── STAMINA bar ──
+            const stamBg = 'rgba(0,0,0,0.7)';
+            ctx.fillStyle = stamBg; ctx.beginPath(); ctx.roundRect(8, 76, 225, 26, 8); ctx.fill();
+            const stamColor = stamina > 60 ? '#00ff88' : stamina > 25 ? '#fbbf24' : '#ff2d55';
+            glow(stamColor, 8); ctx.fillStyle = stamColor;
+            ctx.beginPath(); ctx.roundRect(16, 82, Math.max(0, (stamina / STAM_MAX) * 205), 10, 4); ctx.fill(); noglow();
+            ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.font = '9px Inter,sans-serif'; ctx.fillText('💪 STAMINA', 14, 96);
+            if (stamina < 25) {
+                const tf = Math.sin(frameN * 0.3) > 0;
+                if (tf) { glow('#ff2d55', 12); ctx.fillStyle = '#ff2d55'; ctx.font = 'bold 9px Inter,sans-serif'; ctx.textAlign = 'right'; ctx.fillText('TIRED!', 218, 96); ctx.textAlign = 'left'; noglow(); }
             }
-            if (comboFlash > 0) comboFlash--;
 
-            // Key hint
+            // ── Status effects panel ──
+            let statusY = 110;
+            if (boostTimer > 0) {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(8, statusY, 225, 24, 6); ctx.fill();
+                glow('#fbbf24', 12); ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 11px Inter,sans-serif';
+                ctx.fillText(`⚡ BOOSTED! ${(boostTimer / 60).toFixed(1)}s`, 14, statusY + 16); noglow();
+                statusY += 28;
+            }
+            if (slowTimer > 0) {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(8, statusY, 225, 24, 6); ctx.fill();
+                glow('#3b82f6', 12); ctx.fillStyle = '#93c5fd'; ctx.font = 'bold 11px Inter,sans-serif';
+                ctx.fillText(`💧 SLOWED! ${(slowTimer / 60).toFixed(1)}s`, 14, statusY + 16); noglow();
+                statusY += 28;
+            }
+            if (combo >= 3) {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(8, statusY, 225, 24, 6); ctx.fill();
+                glow('#fbbf24', comboFlash > 0 ? 20 : 0); ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 11px Inter,sans-serif';
+                ctx.fillText(`⚡ COMBO ×${combo}`, 14, statusY + 16); noglow();
+                if (comboFlash > 0) comboFlash--;
+            }
+
+            // ── Key hint ──
             if (!myFinished && gamePhase === 'running') {
-                ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.roundRect(W / 2 - 160, H - 42, 320, 32, 8); ctx.fill();
+                ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.roundRect(W / 2 - 180, H - 42, 360, 32, 8); ctx.fill();
                 ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px Inter,sans-serif'; ctx.textAlign = 'center';
-                ctx.fillText('[SPACE] พุ่ง  ·  [SHIFT] กระโดด  ·  อย่าชนหิน 🪨', W / 2, H - 21); ctx.textAlign = 'left';
+                ctx.fillText('[SPACE] วิ่ง  ·  [SHIFT] กระโดด🪨🔴  ·  ⚡=Boost  ·  💧=Slow', W / 2, H - 21); ctx.textAlign = 'left';
             }
 
-            // Hit vignette
+            // ── Hit vignette ──
             if (hitCD > 0) {
-                const hv = ctx.createRadialGradient(W / 2, H / 2, 100, W / 2, H / 2, W * 0.7);
-                hv.addColorStop(0, 'transparent');
-                hv.addColorStop(1, `rgba(255,45,85,${Math.min(0.7, hitCD / 90 * 0.7)})`);
-                ctx.fillStyle = hv; ctx.fillRect(0, 0, W, H);
+                const v = ctx.createRadialGradient(W / 2, H / 2, 80, W / 2, H / 2, W * 0.6);
+                v.addColorStop(0, 'transparent'); v.addColorStop(1, `rgba(255,45,85,${Math.min(0.7, hitCD / 90 * 0.7)})`);
+                ctx.fillStyle = v; ctx.fillRect(0, 0, W, H);
+            }
+            if (slowTimer > 0 && slowTimer % 10 < 5) {
+                ctx.fillStyle = 'rgba(37,99,235,0.06)'; ctx.fillRect(0, 0, W, H);
             }
 
-            // Finish glow
+            // ── Finish overlay ──
             if (myFinished) {
-                glow('#fbbf24', 30);
-                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 36px Inter,sans-serif'; ctx.textAlign = 'center';
+                glow('#fbbf24', 40); ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 32px Inter,sans-serif'; ctx.textAlign = 'center';
                 const pulse = 1 + 0.05 * Math.sin(frameN * 0.1);
-                ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(pulse, pulse);
-                ctx.fillText('🏁 ' + myFinishTime + 's 🏁', 0, 0); ctx.restore();
+                ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(pulse, pulse); ctx.fillText('🏁 ' + myFinishTime + 's 🏁', 0, 0); ctx.restore();
                 ctx.textAlign = 'left'; noglow();
             }
         }
 
         function drawCountdown() {
-            ctx.fillStyle = 'rgba(2,6,20,0.75)'; ctx.fillRect(0, 0, W, H);
-            ctx.textAlign = 'center';
-            const scale = cdVal > 0 ? 1 : 1.3;
-            ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(scale, scale);
-            glow(cdVal > 0 ? '#fbbf24' : '#00e5ff', 40);
-            ctx.fillStyle = cdVal > 0 ? '#fbbf24' : '#00e5ff';
-            ctx.font = `bold 110px Inter,sans-serif`;
-            ctx.fillText(cdVal > 0 ? cdVal : 'GO!', 0, 42);
-            noglow(); ctx.restore();
+            ctx.fillStyle = 'rgba(2,6,20,0.78)'; ctx.fillRect(0, 0, W, H); ctx.textAlign = 'center';
+            ctx.save(); ctx.translate(W / 2, H / 2);
+            glow(cdVal > 0 ? '#fbbf24' : '#00e5ff', 50);
+            ctx.fillStyle = cdVal > 0 ? '#fbbf24' : '#00e5ff'; ctx.font = 'bold 115px Inter,sans-serif';
+            ctx.fillText(cdVal > 0 ? cdVal : 'GO!', 0, 42); noglow(); ctx.restore();
             ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = 'bold 18px Inter,sans-serif';
-            ctx.fillText('GET READY!', W / 2, H / 2 - 55); ctx.textAlign = 'left';
+            ctx.fillText('GET READY!', W / 2, H / 2 - 60); ctx.textAlign = 'left';
         }
 
-        // ── GAME LOOP ──────────────────────────────────────
+        // ── UPDATE ────────────────────────────────────────
         function update() {
             if (gamePhase !== 'running') return;
             frameN++;
 
             // Jump physics
-            if (myYOff < 0 || myJumpV !== 0) {
-                myYOff += myJumpV; myJumpV += GRAVITY;
-                if (myYOff >= 0) { myYOff = 0; myJumpV = 0; }
-            }
+            if (myYOff < 0 || myJumpV !== 0) { myYOff += myJumpV; myJumpV += GRAVITY; if (myYOff >= 0) { myYOff = 0; myJumpV = 0; } }
 
-            // Screen shake decay
-            if (shakeAmt > 0) { shakeAmt *= 0.75; shakeX = (Math.random() - 0.5) * shakeAmt; shakeY = (Math.random() - 0.5) * shakeAmt; if (shakeAmt < 0.5) { shakeAmt = 0; shakeX = shakeY = 0; } }
+            // Shake
+            if (shakeAmt > 0) { shakeAmt *= 0.78; shakeX = (Math.random() - 0.5) * shakeAmt; shakeY = (Math.random() - 0.5) * shakeAmt; if (shakeAmt < 0.6) { shakeAmt = 0; shakeX = shakeY = 0; } }
 
-            // Collision
+            // Timers
+            if (boostTimer > 0) boostTimer--;
+            if (slowTimer > 0) slowTimer--;
             if (hitCD > 0) hitCD--;
-            else {
-                OBS_PCTS.forEach(pct => {
-                    const sx = w2s((pct / 100) * TRACK_PX);
-                    if (sx > PLAYER_X - 28 && sx < PLAYER_X + 28) {
+
+            // Stamina regen
+            stamina = Math.min(STAM_MAX, stamina + STAM_REGEN);
+
+            // Collision check
+            if (hitCD <= 0) {
+                OBSTACLES.forEach(obs => {
+                    const sx = w2s((obs.pct / 100) * TRACK_PX);
+                    if (sx < PLAYER_X - 30 || sx > PLAYER_X + 30) return;
+                    if (obs.type === 'boost' && collectedBoosts.has(obs.pct)) return;
+
+                    if (obs.type === 'rock') {
                         if (myYOff < JUMP_CLEAR) return;
-                        myPos = Math.max(0, myPos - 8);
-                        hitCD = 90; shakeAmt = 12; combo = 0;
-                        sndHit();
-                        for (let i = 0; i < 20; i++) addParts(PLAYER_X, GROUND_Y + myYOff, '#ff2d55', 1, 'spark');
+                        myPos = Math.max(0, myPos - 7); hitCD = 90; shakeAmt = 12; combo = 0; sndHit();
+                        addParts(PLAYER_X, GROUND_Y + myYOff, '#ff2d55', 20, 'spark');
+                    }
+                    else if (obs.type === 'bouncer') {
+                        const bY = getBounceY(obs);
+                        if (bY < GROUND_Y - 34) return; // safe, rock is high
+                        if (myYOff < JUMP_CLEAR) return; // jumping over it
+                        myPos = Math.max(0, myPos - 7); hitCD = 90; shakeAmt = 14; combo = 0; sndHit();
+                        addParts(PLAYER_X, GROUND_Y + myYOff, '#ff2d55', 20, 'spark');
+                    }
+                    else if (obs.type === 'mud') {
+                        if (myYOff < JUMP_CLEAR) return; // can jump over mud too
+                        if (slowTimer > 0) return;
+                        slowTimer = 150; sndMud(); boostTimer = 0;
+                        addParts(PLAYER_X, GROUND_Y, '#3b82f6', 12, 'spark');
+                    }
+                    else if (obs.type === 'boost') {
+                        if (myYOff < JUMP_CLEAR) return; // can't collect while jumping high
+                        collectedBoosts.add(obs.pct); boostTimer = 120; slowTimer = 0; sndBoost();
+                        addParts(PLAYER_X, GROUND_Y - 20, '#fbbf24', 16, 'spark');
                     }
                 });
             }
 
             elapsed = startTime ? (Date.now() - startTime) / 1000 : 0;
-
-            // Footstep particles
-            if (frameN % 8 === 0 && myPos > 0) addParts(PLAYER_X - 22, GROUND_Y - 5, myCharObj.c, 2, 'spark');
+            if (frameN % 8 === 0 && myPos > 0) addParts(PLAYER_X - 22, GROUND_Y + myYOff - 5, boostTimer > 0 ? '#fbbf24' : myCharObj.c, 2, 'spark');
 
             if (myPos >= 100 && !myFinished) {
-                myFinished = true; myFinishTime = elapsed.toFixed(2);
-                pubMe(true); sndWin();
-                for (let i = 0; i < 80; i++) {
-                    const colors = ['#fbbf24', '#00e5ff', '#00ff88', '#bf5fff', '#ff2d55', '#fff'];
-                    addParts(W / 2 + ((Math.random() - 0.5) * 200), GROUND_Y - 60, colors[Math.floor(Math.random() * colors.length)], 1, 'confetti');
-                }
+                myFinished = true; myFinishTime = elapsed.toFixed(2); pubMe(true); sndWin();
+                const cc = ['#fbbf24', '#00e5ff', '#00ff88', '#bf5fff', '#ff2d55', '#fff'];
+                for (let i = 0; i < 100; i++) addParts(W / 2 + ((Math.random() - 0.5) * 300), GROUND_Y - 60, cc[Math.floor(Math.random() * cc.length)], 1, 'confetti');
                 setTimeout(checkWinner, 1500);
             }
-
             if (Date.now() - lastPub > 140) pubMe(false);
         }
 
         function render() {
-            ctx.clearRect(0, 0, W, H);
-            ctx.save();
+            ctx.clearRect(0, 0, W, H); ctx.save();
             if (shakeAmt > 0) ctx.translate(shakeX, shakeY);
-            drawBG();
-            drawTrees();
-            drawSpeedLines();
-            drawRoad();
-            drawObstacles();
-            drawOtherPlayers();
-            drawGrassAndBotTrees();
-            drawParticles();
-            drawMyPlayer();
-            drawHUD();
+            drawBG(); drawTrees(); drawSpeedLines(); drawRoad(); drawObstacles();
+            drawOtherPlayers(); drawBotTrees(); drawParticles(); drawMyPlayer(); drawHUD();
             if (gamePhase === 'countdown') drawCountdown();
             ctx.restore();
         }
@@ -927,8 +968,8 @@
             document.getElementById('plist').innerHTML = all.map(p => `
         <div class="pbar ${p.id === myId ? 'me' : ''}">
             <span style="font-size:1.1rem">${p.char}</span>
-            <span style="font-weight:700;min-width:100px;font-size:.8rem">${p.name.substring(0, 14)}${p.id === myId ? ' <span style="font-size:.6rem;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px">YOU</span>' : ''}</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, p.pos || 0)}%;background:${p.color || '#666'};color:${p.color || '#666'}"></div></div>
+            <span style="font-weight:700;min-width:100px;font-size:.8rem">${p.name.substr(0, 14)}${p.id === myId ? ' <span style="font-size:.6rem;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px">YOU</span>' : ''}</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, p.pos || 0)}%;background:${p.color || '#666'}"></div></div>
             <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:${p.color || '#666'};min-width:42px;text-align:right">${(p.pos || 0).toFixed(0)}%</span>
             ${p.finished ? `<span style="font-size:.72rem;color:var(--green)">${p.finishTime}s</span>` : ''}
         </div>`).join('');
@@ -947,49 +988,36 @@
             document.getElementById('wChar').textContent = fin[0].char;
             document.getElementById('wName').textContent = fin[0].name;
             document.getElementById('wTime').textContent = fin[0].finishTime + 's';
-            const medals = ['🥇', '🥈', '🥉'];
             document.getElementById('rList').innerHTML = '<h3>🏎 Race Results</h3>' + allP.map((p, i) => `
-        <div class="rrow">
-            <span>${medals[i] || '#' + (i + 1)}</span>
-            <span>${p.char}</span>
-            <span style="flex:1;font-weight:600">${p.name}${p.id === myId ? ' <span style="font-size:.6rem;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px">YOU</span>' : ''}</span>
-            ${p.finishTime ? `<span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.82rem">${p.finishTime}s</span>` : `<span style="color:var(--muted);font-size:.75rem">DNS</span>`}
+        <div class="rrow"><span>${['🥇', '🥈', '🥉'][i] || '#' + (i + 1)}</span><span>${p.char}</span>
+        <span style="flex:1;font-weight:600">${p.name}${p.id === myId ? ' <span style="font-size:.6rem;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px">YOU</span>' : ''}</span>
+        ${p.finishTime ? `<span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.82rem">${p.finishTime}s</span>` : `<span style="color:var(--muted);font-size:.75rem">DNS</span>`}
         </div>`).join('');
             if (myFinished) updateHoF();
             renderHoF();
             setTimeout(() => { cancelAnimationFrame(raf); show('S3'); }, 2000);
         }
 
-        // ── HOF ───────────────────────────────────────────
         function updateHoF() {
             hallOfFame.push({ name: myName, char: myCharObj.e, time: parseFloat(myFinishTime), date: new Date().toLocaleDateString('th-TH') });
-            hallOfFame.sort((a, b) => a.time - b.time);
-            hallOfFame = hallOfFame.slice(0, 10);
+            hallOfFame.sort((a, b) => a.time - b.time); hallOfFame = hallOfFame.slice(0, 10);
             if (client && client.connected) client.publish(HOF_TOPIC, JSON.stringify(hallOfFame), { qos: 1, retain: true });
         }
         function renderHoF() {
             const h = document.getElementById('hofList');
             if (!hallOfFame.length) { h.innerHTML = '<div class="hfe">No records yet — Be the first! ⚡</div>'; return; }
-            const rank = (i) => ['🥇', '🥈', '🥉'][i] || '#' + (i + 1);
             h.innerHTML = hallOfFame.map((e, i) => `
-        <div class="hofr">
-            <span style="width:22px">${rank(i)}</span>
-            <span>${e.char}</span>
-            <span style="flex:1;font-weight:600">${e.name}</span>
-            <span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.82rem">${e.time.toFixed(2)}s</span>
-            <span style="color:var(--muted);font-size:.72rem;margin-left:4px">${e.date}</span>
-        </div>`).join('');
+        <div class="hofr"><span style="width:22px">${['🥇', '🥈', '🥉'][i] || '#' + (i + 1)}</span><span>${e.char}</span>
+        <span style="flex:1;font-weight:600">${e.name}</span>
+        <span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.82rem">${e.time.toFixed(2)}s</span>
+        <span style="color:var(--muted);font-size:.72rem;margin-left:4px">${e.date}</span></div>`).join('');
         }
 
         // ── MQTT ─────────────────────────────────────────
-        function mqttBase(r) { return `OracleRace/v3/${r}`; }
+        function mqttBase(r) { return `OracleRace/v4/${r}`; }
         function initMQTT() {
             client = mqtt.connect(BROKER, { reconnectPeriod: 3000 });
-            client.on('connect', () => {
-                setDot(true);
-                document.getElementById('btnStart').disabled = false;
-                client.subscribe(HOF_TOPIC, { qos: 1 });
-            });
+            client.on('connect', () => { setDot(true); document.getElementById('btnStart').disabled = false; client.subscribe(HOF_TOPIC, { qos: 1 }); });
             client.on('message', (t, p) => {
                 try {
                     const d = JSON.parse(p.toString());
@@ -1007,12 +1035,9 @@
             lastPub = Date.now();
             client.publish(`${mqttBase(myRoom)}/runner/${myId}`, JSON.stringify({ id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos, yOff: myYOff, finished: myFinished, finishTime: myFinishTime }), { qos: 0, retain: false });
         }
-        function setDot(on) {
-            document.getElementById('dot').className = 'dot' + (on ? ' on' : '');
-            document.getElementById('connTxt').textContent = on ? 'Connected — Ready to race!' : 'Reconnecting...';
-        }
+        function setDot(on) { document.getElementById('dot').className = 'dot' + (on ? ' on' : ''); document.getElementById('connTxt').textContent = on ? 'Connected — Ready to race!' : 'Reconnecting...'; }
 
-        // ── START GAME ────────────────────────────────────
+        // ── START ────────────────────────────────────────
         function show(id) {
             document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
             const s = document.getElementById(id); s.style.display = 'flex'; s.classList.add('active');
@@ -1021,15 +1046,12 @@
             myName = document.getElementById('iName').value.trim() || 'Oracle';
             myRoom = (document.getElementById('iRoom').value.trim() || 'Oracle').replace(/\W/g, '');
             client.subscribe(`${mqttBase(myRoom)}/runner/+`, { qos: 0 });
-            players = {}; myPos = 0; myYOff = 0; myJumpV = 0;
-            myFinished = false; myFinishTime = null; hitCD = 0; frameN = 0; winnerSet = false; elapsed = 0;
-            combo = 0; comboFlash = 0; parts = []; shakeAmt = 0; cdVal = 3; startTime = null;
+            players = {}; myPos = 0; myYOff = 0; myJumpV = 0; myFinished = false; myFinishTime = null;
+            hitCD = 0; frameN = 0; winnerSet = false; elapsed = 0; combo = 0; comboFlash = 0; parts = []; shakeAmt = 0;
+            stamina = STAM_MAX; boostTimer = 0; slowTimer = 0; collectedBoosts = new Set(); cdVal = 3; startTime = null;
             show('S2'); loop(); pubMe(true);
             gamePhase = 'countdown';
-            const cd = setInterval(() => {
-                cdVal--;
-                if (cdVal < 0) { clearInterval(cd); gamePhase = 'running'; startTime = Date.now(); }
-            }, 1000);
+            const cd = setInterval(() => { cdVal--; if (cdVal < 0) { clearInterval(cd); gamePhase = 'running'; startTime = Date.now(); } }, 1000);
         }
 
         // ── INPUT ────────────────────────────────────────
@@ -1039,13 +1061,17 @@
                 e.preventDefault();
                 if (gamePhase === 'running' && !myFinished) {
                     const now = Date.now();
-                    if (now - lastSpaceMs < COMBO_WIN) { combo = Math.min(15, combo + 1); comboFlash = 20; sndCombo(); }
-                    else { combo = 0; }
+                    if (now - lastSpaceMs < 540) { combo = Math.min(15, combo + 1); comboFlash = 20; sndCombo(); } else { combo = 0; }
                     lastSpaceMs = now;
-                    const bonus = combo >= 8 ? 1.2 : combo >= 5 ? 0.7 : combo >= 3 ? 0.35 : 0;
-                    myPos = Math.min(100, myPos + STEP + bonus);
-                    sndStep();
-                    addParts(PLAYER_X - 22, GROUND_Y + myYOff - 5, myCharObj.c, 3, 'spark');
+                    const tired = stamina < 25;
+                    if (tired) sndTired();
+                    const stamMult = stamina > 60 ? 1 : stamina > 25 ? 0.75 : 0.45;
+                    const boosted = boostTimer > 0 ? 1.8 : 1;
+                    const slowed = slowTimer > 0 ? 0.6 : 1;
+                    const comboBonus = combo >= 8 ? 1.2 : combo >= 5 ? 0.6 : combo >= 3 ? 0.3 : 0;
+                    myPos = Math.min(100, myPos + (BASE_STEP + comboBonus) * stamMult * boosted * slowed);
+                    stamina = Math.max(0, stamina - STAM_DRAIN);
+                    sndStep(); addParts(PLAYER_X - 22, GROUND_Y + myYOff - 5, boostTimer > 0 ? '#fbbf24' : myCharObj.c, 3, 'spark');
                 }
                 if (gamePhase === 'setup') document.getElementById('btnStart').click();
             }
@@ -1056,24 +1082,17 @@
             if (e.code === 'Enter' && gamePhase === 'setup') document.getElementById('btnStart').click();
         });
 
-        // ── SETUP CHAR GRID ──────────────────────────────
-        (function () {
+        // ── INIT ────────────────────────────────────────
+        (function buildGrid() {
             const g = document.getElementById('charGrid');
             CHARS.forEach((ch, i) => {
-                const b = document.createElement('button');
-                b.className = 'cbtn' + (i === 0 ? ' sel' : '');
+                const b = document.createElement('button'); b.className = 'cbtn' + (i === 0 ? ' sel' : '');
                 b.innerHTML = `${ch.e}<span>${ch.n}</span>`;
-                b.onclick = () => {
-                    document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('sel'));
-                    b.classList.add('sel'); myCharObj = ch;
-                };
+                b.onclick = () => { document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('sel')); b.classList.add('sel'); myCharObj = ch; };
                 g.appendChild(b);
             });
         })();
-
         document.getElementById('btnStart').addEventListener('click', startGame);
-
-        // ── INIT ─────────────────────────────────────────
         initMQTT();
     </script>
 </body>

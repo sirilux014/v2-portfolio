@@ -4,318 +4,694 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Travel Map: Chiang Mai to Phitsanulok | Smile Oracle</title>
-
-    <!-- Leaflet.js CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-
-    <!-- Google Fonts: Inter -->
+    <title>Smile Oracle · Portfolio | Sirirak Panthuban</title>
+    <meta name="description"
+        content="Portfolio of Sirirak Panthuban — blockchain developer, data visualizer, and strategic thinker. Built by Smile Oracle.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --bg-color: #121212;
-            --panel-bg: rgba(30, 30, 30, 0.8);
-            --text-color: #e0e0e0;
-            --accent-color: #00e5ff;
-            --accent-glow: rgba(0, 229, 255, 0.3);
-            --marker-color: #ff5252;
-            --line-color: #00e5ff;
+            --bg: #0a0f1e;
+            --surface: #111827;
+            --surface2: #1a2236;
+            --border: rgba(255, 255, 255, 0.08);
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --cyan: #00e5ff;
+            --blue: #3b82f6;
+            --green: #10b981;
+            --orange: #f97316;
+            --purple: #a855f7;
         }
 
-        body,
-        html {
+        * {
             margin: 0;
             padding: 0;
-            height: 100%;
-            width: 100%;
+            box-sizing: border-box;
+        }
+
+        body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            overflow: hidden;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        #map {
-            height: 100vh;
-            width: 100vw;
-            background: var(--bg-color);
+        /* Animated background particles */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 229, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 229, 255, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .header {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            background: var(--panel-bg);
-            backdrop-filter: blur(10px);
-            padding: 10px 25px;
-            border-radius: 50px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* ── HERO ─────────────────────────────────── */
+        .hero {
+            padding: 100px 0 80px;
             text-align: center;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 1.2rem;
+        .oracle-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 229, 255, 0.1);
+            border: 1px solid rgba(0, 229, 255, 0.3);
+            color: var(--cyan);
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-bottom: 2rem;
+        }
+
+        .oracle-badge::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--cyan);
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 0.4;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.4);
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, rgba(0, 229, 255, 0.8) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-name-th {
+            display: block;
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            font-weight: 400;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            -webkit-text-fill-color: var(--muted);
+        }
+
+        .hero-tagline {
+            font-size: 1.1rem;
+            color: var(--muted);
+            max-width: 560px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        .hero-links {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .hero-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.25s;
+        }
+
+        .hero-btn-primary {
+            background: var(--cyan);
+            color: #000;
+            box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);
+        }
+
+        .hero-btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 50px rgba(0, 229, 255, 0.5);
+        }
+
+        .hero-btn-secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-btn-secondary:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* ── SECTION TITLE ─────────────────────────── */
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--muted);
+            font-size: 1rem;
+        }
+
+        .divider {
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyan), transparent);
+            margin: 0 auto 1rem;
+            border-radius: 2px;
+        }
+
+        /* ── PROJECT CARDS ─────────────────────────── */
+        .projects {
+            padding: 0 0 80px;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.75rem;
+            text-decoration: none;
+            color: var(--text);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--card-accent, var(--cyan));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.35s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.15);
+            background: var(--surface2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .card-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1.25rem;
+            background: var(--card-icon-bg, rgba(0, 229, 255, 0.1));
+        }
+
+        .card-tag {
+            display: inline-block;
+            font-size: 0.7rem;
             font-weight: 600;
             letter-spacing: 1px;
-            background: linear-gradient(90deg, #fff, var(--accent-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .info-panel {
-            position: absolute;
-            bottom: 40px;
-            right: 20px;
-            z-index: 1000;
-            background: var(--panel-bg);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 15px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            font-size: 0.85rem;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .footer {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            z-index: 1000;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.5);
             text-transform: uppercase;
-            letter-spacing: 2px;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: var(--card-tag-bg, rgba(0, 229, 255, 0.1));
+            color: var(--card-accent, var(--cyan));
+            margin-bottom: 0.75rem;
         }
 
-        .footer span {
-            color: var(--accent-color);
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-desc {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.6;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-tech {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tech-badge {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--muted);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .card-arrow {
+            position: absolute;
+            top: 1.75rem;
+            right: 1.75rem;
+            color: var(--muted);
+            transition: all 0.25s;
+            opacity: 0;
+        }
+
+        .project-card:hover .card-arrow {
+            opacity: 1;
+            color: var(--card-accent, var(--cyan));
+            transform: translate(2px, -2px);
+        }
+
+        /* Card themes */
+        .card-cv {
+            --card-accent: var(--blue);
+            --card-icon-bg: rgba(59, 130, 246, 0.12);
+            --card-tag-bg: rgba(59, 130, 246, 0.12);
+        }
+
+        .card-blockchain {
+            --card-accent: var(--green);
+            --card-icon-bg: rgba(16, 185, 129, 0.12);
+            --card-tag-bg: rgba(16, 185, 129, 0.12);
+        }
+
+        .card-3d {
+            --card-accent: var(--orange);
+            --card-icon-bg: rgba(249, 115, 22, 0.12);
+            --card-tag-bg: rgba(249, 115, 22, 0.12);
+        }
+
+        .card-metaverse {
+            --card-accent: var(--purple);
+            --card-icon-bg: rgba(168, 85, 247, 0.12);
+            --card-tag-bg: rgba(168, 85, 247, 0.12);
+        }
+
+        /* ── CV INLINE SECTION ──────────────────────── */
+        .cv-section {
+            padding: 0 0 80px;
+        }
+
+        .cv-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2.5rem;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        @media (max-width: 720px) {
+            .cv-card {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .cv-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--blue), #2563eb);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 1rem;
+        }
+
+        .cv-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .cv-title {
+            font-size: 0.85rem;
+            color: var(--blue);
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1.5rem;
         }
 
-        /* Leaflet Dark Theme Overrides */
-        .leaflet-container {
-            background: #121212 !important;
+        .cv-skills {
+            list-style: none;
         }
 
-        .leaflet-popup-content-wrapper,
-        .leaflet-popup-tip {
-            background: #1e1e1e !important;
-            color: #fff !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5) !important;
+        .cv-skills li {
+            font-size: 0.85rem;
+            color: var(--muted);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .leaflet-popup-content {
-            font-family: 'Inter', sans-serif;
-            line-height: 1.5;
+        .cv-skills li::before {
+            content: '▹';
+            color: var(--blue);
+            font-size: 0.65rem;
         }
 
-        .popup-title {
-            color: var(--accent-color);
+        .experience-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .experience-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .exp-role {
+            font-size: 1rem;
             font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
+            margin-bottom: 0.25rem;
         }
 
-        .popup-meta {
+        .exp-company {
             font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--blue);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .exp-period {
+            font-size: 0.75rem;
+            color: var(--muted);
+            background: rgba(59, 130, 246, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 0.75rem;
+        }
+
+        .exp-bullets {
+            list-style: none;
+        }
+
+        .exp-bullets li {
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 0.35rem;
+            padding-left: 14px;
+            position: relative;
+            line-height: 1.6;
+        }
+
+        .exp-bullets li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 5px;
+            height: 5px;
+            background: #334155;
+            border-radius: 50%;
+        }
+
+        .cv-full-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--blue);
+            text-decoration: none;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            padding: 8px 18px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .cv-full-link:hover {
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* ── FOOTER ─────────────────────────────────── */
+        footer {
+            border-top: 1px solid var(--border);
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        footer span {
+            color: var(--cyan);
+        }
+
+        /* ── RESPONSIVE ─────────────────────────────── */
+        @media (max-width: 640px) {
+            .hero {
+                padding: 60px 0 50px;
+            }
+
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="bg-grid"></div>
 
-    <div class="header">
-        <h1>JOURNEY TO PHITSANULOK</h1>
-        <div style="font-size: 0.7rem; color: var(--accent-color); margin-top: 5px; letter-spacing: 2px;">SMILE ORACLE
-            AWAKENED</div>
+    <div class="container">
+
+        <!-- Hero -->
+        <section class="hero">
+            <div class="oracle-badge">Smile Oracle · Portfolio 2026</div>
+            <h1>Sirirak Panthuban
+                <span class="hero-name-th">ศิริรักษ์ พันธุบาล</span>
+            </h1>
+            <p class="hero-tagline">
+                Executive Leader · Web3 Developer · Data Visualizer<br>
+                ผู้นำเชิงยุทธศาสตร์ ผู้สร้างระบบ Blockchain และ Data Visualization บน JIBCHAIN L1
+            </p>
+            <div class="hero-links">
+                <a href="cv.html" class="hero-btn hero-btn-primary">📄 ดู CV เต็ม</a>
+                <a href="jibchain-sensor.html" class="hero-btn hero-btn-secondary">⛓ JIBCHAIN Dashboard</a>
+            </div>
+        </section>
+
+        <!-- Projects -->
+        <section class="projects">
+            <div class="section-header">
+                <div class="divider"></div>
+                <h2>ผลงานทั้งหมด</h2>
+                <p>Projects · Web Apps · Interactive Visualizations</p>
+            </div>
+
+            <div class="project-grid">
+
+                <!-- JIBCHAIN Sensor -->
+                <a href="jibchain-sensor.html" class="project-card card-blockchain">
+                    <span class="card-arrow">↗</span>
+                    <div class="card-icon">⛓</div>
+                    <span class="card-tag">Blockchain · Live Data</span>
+                    <div class="card-title">JIBCHAIN Sensor Dashboard</div>
+                    <div class="card-desc">อ่านข้อมูล Sensor แบบ Real-time จาก Smart Contract บน JIBCHAIN L1 พร้อม Chart
+                        แบบ Interactive แสดงระดับน้ำและแรงดันแบตเตอรี่</div>
+                    <div class="card-tech">
+                        <span class="tech-badge">Viem.js</span>
+                        <span class="tech-badge">Chart.js</span>
+                        <span class="tech-badge">FloodBoy016</span>
+                        <span class="tech-badge">JIBCHAIN L1</span>
+                    </div>
+                </a>
+
+                <!-- Travel 3D -->
+                <a href="travel-3d.html" class="project-card card-3d">
+                    <span class="card-arrow">↗</span>
+                    <div class="card-icon">🚄</div>
+                    <span class="card-tag">3D · Three.js</span>
+                    <div class="card-title">3D Train Journey — Neon Express</div>
+                    <div class="card-desc">ประสบการณ์การเดินทางจากเชียงใหม่สู่พิษณุโลก ในรูปแบบ 3D Train Simulation
+                        พร้อมไฟนีออน กล้อง 4 มุม และโหมดกลางวัน/กลางคืน</div>
+                    <div class="card-tech">
+                        <span class="tech-badge">Three.js</span>
+                        <span class="tech-badge">OrbitControls</span>
+                        <span class="tech-badge">WebGL</span>
+                        <span class="tech-badge">TWEEN.js</span>
+                    </div>
+                </a>
+
+                <!-- DustBoy Metaverse -->
+                <a href="dustboy.html" class="project-card card-metaverse">
+                    <span class="card-arrow">↗</span>
+                    <div class="card-icon">🌐</div>
+                    <span class="card-tag">3D · MQTT · IoT</span>
+                    <div class="card-title">DustBoy 3D Metaverse</div>
+                    <div class="card-desc">Dashboard มลพิษอากาศ PM2.5 ในรูปแบบ 3D Metaverse เชื่อมต่อ MQTT Real-time
+                        แสดงสถานีตรวจวัดทั่วประเทศในอวกาศสามมิติ</div>
+                    <div class="card-tech">
+                        <span class="tech-badge">Three.js</span>
+                        <span class="tech-badge">MQTT</span>
+                        <span class="tech-badge">CSS2D</span>
+                        <span class="tech-badge">Real-time</span>
+                    </div>
+                </a>
+
+                <!-- CV Card -->
+                <a href="cv.html" class="project-card card-cv">
+                    <span class="card-arrow">↗</span>
+                    <div class="card-icon">👤</div>
+                    <span class="card-tag">Resume · Executive</span>
+                    <div class="card-title">CV — Executive Portfolio</div>
+                    <div class="card-desc">CV ระดับผู้บริหาร ครอบคลุมประสบการณ์ Banpu PCL, IPED, Chiang Mai Freshmilk
+                        และโปรเจกต์ Blockchain บน JIBCHAIN L1</div>
+                    <div class="card-tech">
+                        <span class="tech-badge">Strategic Leadership</span>
+                        <span class="tech-badge">Energy</span>
+                        <span class="tech-badge">Finance</span>
+                        <span class="tech-badge">Blockchain</span>
+                    </div>
+                </a>
+
+            </div>
+        </section>
+
+        <!-- Inline CV Summary -->
+        <section class="cv-section">
+            <div class="section-header">
+                <div class="divider"></div>
+                <h2>ประสบการณ์ล่าสุด</h2>
+                <p>Recent Experience · Key Roles</p>
+            </div>
+
+            <div class="cv-card">
+                <div>
+                    <div class="cv-avatar">SP</div>
+                    <div class="cv-name">Sirirak Panthuban</div>
+                    <div class="cv-title">Executive Leader &amp; Dev</div>
+                    <ul class="cv-skills">
+                        <li>Strategic Business Planning</li>
+                        <li>Blockchain / Web3</li>
+                        <li>Data Visualization</li>
+                        <li>Corporate Finance</li>
+                        <li>Global Energy Transition</li>
+                        <li>IoT &amp; Real-time Systems</li>
+                    </ul>
+                    <a href="cv.html" class="cv-full-link">View Full CV →</a>
+                </div>
+
+                <div>
+                    <div class="experience-item">
+                        <div class="exp-role">Web Developer (Blockchain Integration)</div>
+                        <div class="exp-company">JIBCHAIN L1 Sensor Dashboard</div>
+                        <span class="exp-period">Mar 2026</span>
+                        <ul class="exp-bullets">
+                            <li>สร้าง Webapp อ่านข้อมูล Smart Contract บน JIBCHAIN L1 ด้วย Viem.js</li>
+                            <li>พัฒนา Interactive Chart ด้วย Chart.js พร้อม Data Smoothing</li>
+                            <li>Deploy บน GitHub Pages — Production ready</li>
+                        </ul>
+                    </div>
+
+                    <div class="experience-item">
+                        <div class="exp-role">President &amp; CEO / Board Member</div>
+                        <div class="exp-company">Banpu Public Company Limited</div>
+                        <span class="exp-period">2561 – Present</span>
+                        <ul class="exp-bullets">
+                            <li>ผู้อำนวยการสายอาวุโส - ธุรกิจไฟฟ้า (2567-ปัจจุบัน)</li>
+                            <li>กรรมการ - BKV-BPP POWER LLC ในสหรัฐอเมริกา</li>
+                            <li>อดีต CFO: บริหารความเสี่ยงทางการเงินระดับโลก</li>
+                        </ul>
+                    </div>
+
+                    <div class="experience-item">
+                        <div class="exp-role">Director (ผู้อำนวยการ)</div>
+                        <div class="exp-company">IPED, ECT</div>
+                        <span class="exp-period">2567 – Present</span>
+                        <ul class="exp-bullets">
+                            <li>บริหารสถาบันพัฒนาความรู้ด้านประชาธิปไตยและการเลือกตั้ง</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
     </div>
 
-    <!-- Navigation Menu -->
-    <div
-        style="position: absolute; top: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;">
-        <a href="travel-3d.html" style="text-decoration: none;">
-            <div
-                style="background: var(--panel-bg); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 8px; border: 1px solid var(--accent-color); color: var(--accent-color); font-size: 0.8rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 15px var(--accent-glow);">
-                ENTER 3D SIMULATION
-            </div>
-        </a>
-        <a href="dustboy.html" style="text-decoration: none;">
-            <div
-                style="background: var(--panel-bg); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 8px; border: 1px solid #ff9100; color: #ff9100; font-size: 0.8rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.3s;">
-                DUSTBOY METAVERSE
-            </div>
-        </a>
-        <a href="jibchain-sensor.html" style="text-decoration: none;">
-            <div
-                style="background: var(--panel-bg); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 8px; border: 1px solid #3b82f6; color: #3b82f6; font-size: 0.8rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);">
-                JIBCHAIN SENSORS
-            </div>
-        </a>
-        <a href="hand-ik.html" style="text-decoration: none;">
-            <div
-                style="background: var(--panel-bg); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 8px; border: 1px solid #ff00ff; color: #ff00ff; font-size: 0.8rem; font-weight: 600; text-align: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 0 10px rgba(255,0,255,0.2);">
-                HAND IK (NEURAL)
-            </div>
-        </a>
-        <div id="memory-btn"
-            style="background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 5px 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 0.7rem; text-align: center; cursor: pointer;">
-            DIGITAL MEMORY (ψ)
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            NOTHING DELETED · SMILE ORACLE 🌊 · <span>2026</span> ·
+            <a href="https://github.com/sirilux014/v2-portfolio" target="_blank"
+                style="color: var(--cyan); text-decoration: none; margin-left: 4px;">GitHub Repository ↗</a>
         </div>
-    </div>
+    </footer>
 
-    <!-- Memory Modal (Simple Overlay) -->
-    <div id="memory-modal"
-        style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; background: #1a1a1a; padding: 30px; border-radius: 20px; border: 1px solid var(--accent-color); width: 300px; box-shadow: 0 0 50px rgba(0,0,0,0.8);">
-        <h2 style="margin-top:0; color: var(--accent-color); font-size: 1.2rem;">MEMORY FRAGMENTS</h2>
-        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px;">
-            <li><a href="ψ/memory/birth/birth_of_smile_oracle.md" target="_blank"
-                    style="color: #fff; text-decoration: none; border-bottom: 1px solid #333; display: block; padding-bottom: 5px;">📜
-                    Birth of Smile Oracle</a></li>
-            <li><a href="ψ/memory/project_narrative.md" target="_blank"
-                    style="color: #fff; text-decoration: none; border-bottom: 1px solid #333; display: block; padding-bottom: 5px;">📖
-                    Project Narrative</a></li>
-            <li><a href="ψ/memory/retrospectives/2026-02/28/15.30_final-victory-retrospective.md" target="_blank"
-                    style="color: #fff; text-decoration: none; border-bottom: 1px solid #333; display: block; padding-bottom: 5px;">🏁
-                    Final Victory Report</a></li>
-            <li><a href="ψ/project/delivery_bot_report.md" target="_blank"
-                    style="color: #00e5ff; text-decoration: none; border-bottom: 1px solid #333; display: block; padding-bottom: 5px;">📦
-                    RC Delivery Bot Concept</a></li>
-        </ul>
-        <button onclick="document.getElementById('memory-modal').style.display='none'"
-            style="margin-top: 20px; width: 100%; padding: 10px; background: #333; border: none; color: #fff; border-radius: 5px; cursor: pointer;">CLOSE</button>
-    </div>
-
-    <div id="map"></div>
-
-    <div class="info-panel" id="info-panel">
-        <div>Total Distance: <span id="dist">Calculating...</span></div>
-        <div style="margin-top: 5px;">Points recorded: <span id="count">0</span></div>
-    </div>
-
-    <div class="footer">
-        CREATED BY <span>SMILE ORACLE</span> | <span style="color: #fff;">NOTHING DELETED</span> | 2026-02-28
-    </div>
-
-    <script>
-        document.getElementById('memory-btn').onclick = () => {
-            document.getElementById('memory-modal').style.display = 'block';
-        };
-    </script>
-
-    <!-- Leaflet.js JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-    <!-- PapaParse for CSV parsing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-
-    <script>
-        // Initialize Map
-        const map = L.map('map', {
-            zoomControl: false,
-            attributionControl: false
-        }).setView([17.5, 99.5], 7);
-
-        // Add Dark Theme Tiles (CartoDB Dark Matter)
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19
-        }).addTo(map);
-
-        // Function to parse and plot CSV
-        async function loadTravelData() {
-            try {
-                const response = await fetch('travel-phitsanulok.csv');
-                const csvData = await response.text();
-
-                Papa.parse(csvData, {
-                    header: true,
-                    dynamicTyping: true,
-                    skipEmptyLines: true,
-                    complete: function (results) {
-                        const points = results.data;
-                        const latLons = [];
-                        let waypointCount = 0;
-
-                        // Add Markers and build path
-                        points.forEach((pt, index) => {
-                            if (pt.lat && pt.lon) {
-                                const pos = [pt.lat, pt.lon];
-                                latLons.push(pos);
-                                waypointCount++;
-
-                                // Only create markers for every 10th point or if it has a locality change to keep it clean
-                                // But always include start and end
-                                if (index === 0 || index === points.length - 1 || index % 15 === 0) {
-                                    const marker = L.circleMarker(pos, {
-                                        radius: index === 0 || index === points.length - 1 ? 6 : 3,
-                                        fillColor: index === 0 || index === points.length - 1 ? '#00ffd0' : '#ff5252',
-                                        color: '#fff',
-                                        weight: 1,
-                                        opacity: 1,
-                                        fillOpacity: 0.8
-                                    }).addTo(map);
-
-                                    const batteryIcon = pt.battery > 20 ? '🔋' : '🪫';
-                                    const popupContent = `
-                                        <b class="popup-title">${pt.locality || pt.address || 'GPS Point'}</b>
-                                        <div class="popup-meta">
-                                            🕒 Time: ${pt.updated}<br>
-                                            ${batteryIcon} Battery: ${pt.battery}% (${pt.charging})<br>
-                                            📍 Lat: ${pt.lat.toFixed(4)}, Lon: ${pt.lon.toFixed(4)}
-                                        </div>
-                                    `;
-                                    marker.bindPopup(popupContent);
-                                }
-                            }
-                        });
-
-                        // Draw Path (Line)
-                        if (latLons.length > 0) {
-                            const polyline = L.polyline(latLons, {
-                                color: '#00e5ff',
-                                weight: 2,
-                                opacity: 0.6,
-                                dashArray: '5, 5'
-                            }).addTo(map);
-
-                            // Auto-fit map to the route
-                            map.fitBounds(polyline.getBounds(), { padding: [50, 50] });
-
-                            // Update Info Panel
-                            document.getElementById('count').innerText = waypointCount;
-
-                            // Estimate distance (simple calculation)
-                            let totalDist = 0;
-                            for (let i = 1; i < latLons.length; i++) {
-                                totalDist += map.distance(latLons[i - 1], latLons[i]);
-                            }
-                            document.getElementById('dist').innerText = (totalDist / 1000).toFixed(2) + ' km';
-                        }
-                    }
-                });
-            } catch (err) {
-                console.error("Error loading CSV:", err);
-            }
-        }
-
-        // Add Zoom Control to bottom-left
-        L.control.zoom({ position: 'bottomleft' }).addTo(map);
-
-        // Load data on start
-        loadTravelData();
-    </script>
 </body>
 
 </html>

@@ -699,6 +699,68 @@
             line-height: 1.5;
         }
 
+        /* ── Team Section ── */
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .team-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .team-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-glow);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        }
+
+        .team-avatar {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .team-id {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-glow);
+            border-radius: 50px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+        }
+
+        .team-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .team-role {
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
         /* ── Animations ── */
         .reveal {
             opacity: 0;
@@ -740,6 +802,7 @@
                 <a href="#about" class="nav-link">About Project</a>
                 <a href="#ai-integration" class="nav-link">AI Features</a>
                 <a href="#hardware" class="nav-link">Hardware</a>
+                <a href="#team" class="nav-link">Team</a>
                 <a href="#tech-stack" class="nav-link">Tech Stack</a>
             </div>
         </div>
@@ -916,6 +979,52 @@
                     <div class="hw-icon">🛠️</div>
                     <h4>Chassis & Tools</h4>
                     <p>โครงสร้างตัวรถ (Chassis), สายแพ, คู่มือ และเครื่องมือพื้นฐานสำหรับประกอบระบบเข้าด้วยกัน</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    </section>
+
+    <!-- Team Section -->
+    <section id="team">
+        <div class="container">
+            <div class="section-subtitle reveal">Our Creator Team</div>
+            <h2 class="section-title reveal">ผู้จัดทำโครงงาน</h2>
+            <p class="reveal" style="text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto 3rem;">
+                ทีมงานผู้ร่วมพัฒนาโปรเจกต์ Automation Delivery สำหรับสำนักงานภายในอาคาร
+            </p>
+
+            <div class="team-grid">
+                <div class="team-card reveal">
+                    <div class="team-avatar">👩‍💻</div>
+                    <div class="team-id">6715247003</div>
+                    <div class="team-name">นางสาวปิยธิดา แซ่เจียม</div>
+                    <div class="team-role">Project Developer</div>
+                </div>
+                <div class="team-card reveal" style="transition-delay: 0.1s;">
+                    <div class="team-avatar">👩‍💻</div>
+                    <div class="team-id">6715247004</div>
+                    <div class="team-name">นางสาวพีรดา ดาวเรือง</div>
+                    <div class="team-role">Project Developer</div>
+                </div>
+                <div class="team-card reveal" style="transition-delay: 0.2s;">
+                    <div class="team-avatar">👩‍💻</div>
+                    <div class="team-id">6715247014</div>
+                    <div class="team-name">นางสาวศิริรักษ์ พันธุบาล</div>
+                    <div class="team-role">Project Developer</div>
+                </div>
+                <div class="team-card reveal" style="transition-delay: 0.3s;">
+                    <div class="team-avatar">👨‍💻</div>
+                    <div class="team-id">6715247015</div>
+                    <div class="team-name">นายกันตะวิชฺญ์ มงคลเคหา</div>
+                    <div class="team-role">Project Developer</div>
+                </div>
+                <div class="team-card reveal" style="transition-delay: 0.4s;">
+                    <div class="team-avatar">👨‍💻</div>
+                    <div class="team-id">6715247018</div>
+                    <div class="team-name">นายต้นบุญ ประสมพลอย</div>
+                    <div class="team-role">Project Developer</div>
                 </div>
             </div>
         </div>

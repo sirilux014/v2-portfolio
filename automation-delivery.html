@@ -451,6 +451,195 @@
             font-size: 0.9rem;
         }
 
+        /* ── Work Process Section ── */
+        .process-grid {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 4rem;
+            position: relative;
+        }
+
+        @media (max-width: 900px) {
+            .process-grid {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .process-grid::before {
+                display: none;
+            }
+        }
+
+        /* Connecting line */
+        .process-grid::before {
+            content: '';
+            position: absolute;
+            top: 40px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+            z-index: 0;
+        }
+
+        .step-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1;
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--bg);
+            border: 2px solid var(--primary-glow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--primary-glow);
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), inset 0 0 15px rgba(59, 130, 246, 0.2);
+            position: relative;
+        }
+
+        .step-number::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .step-item h4 {
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+            color: #fff;
+        }
+
+        .step-item p {
+            font-size: 0.85rem;
+            color: var(--muted);
+            text-align: center;
+            max-width: 200px;
+        }
+
+        /* ── Map Tracker Section ── */
+        .map-wrapper {
+            margin-top: 4rem;
+            height: 500px;
+            background: url('delivery_map_bg.png') center/cover no-repeat;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .map-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(3, 7, 18, 0.4);
+            pointer-events: none;
+        }
+
+        .bot-marker {
+            position: absolute;
+            top: 45%;
+            left: 48%;
+            width: 44px;
+            height: 44px;
+            background: var(--primary-glow);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 0 25px var(--primary-glow);
+            animation: map-float 3s ease-in-out infinite;
+            z-index: 10;
+        }
+
+        @keyframes map-float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-10px) scale(1.05);
+            }
+        }
+
+        .bot-label {
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--surface);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            white-space: nowrap;
+            border: 1px solid var(--border);
+            color: #fff;
+            font-weight: 700;
+        }
+
+        .status-toast {
+            position: absolute;
+            bottom: 24px;
+            right: 24px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            padding: 16px 24px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 200px;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-glow);
+        }
+
+        .status-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary-glow);
+            animation: pulse 1.5s infinite;
+        }
+
+        .status-coords {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .map-svg-path {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
         /* ── Animations ── */
         .reveal {
             opacity: 0;
@@ -556,6 +745,57 @@
                             </div>
                         </li>
                     </ul>
+                </div>
+            </div>
+
+            <!-- Workflow & Map Tracker -->
+            <div style="margin-top: 8rem;">
+                <h2 class="section-title reveal" style="font-size: 2rem;">ขั้นตอนการทำงาน</h2>
+                <div class="process-grid">
+                    <div class="step-item reveal">
+                        <div class="step-number">01</div>
+                        <h4>สั่งงานผ่านแอปฯ</h4>
+                        <p>ผู้ใช้เลือกปลายทางและยืนยันคำสั่งซื้อผ่านระบบ SPA</p>
+                    </div>
+                    <div class="step-item reveal" style="transition-delay: 0.1s;">
+                        <div class="step-number">02</div>
+                        <h4>AI ตรวจรับพัสดุ</h4>
+                        <p>หุ่นยนต์ระบุและหยิบพัสดุที่ถูกต้องผ่านการสแกน QR Code</p>
+                    </div>
+                    <div class="step-item reveal" style="transition-delay: 0.2s;">
+                        <div class="step-number">03</div>
+                        <h4>เดินทางอัตโนมัติ</h4>
+                        <p>นำทางแบบอัจฉริยะพร้อมหลบหลีกสิ่งกีดขวางแบบ Real-time</p>
+                    </div>
+                    <div class="step-item reveal" style="transition-delay: 0.3s;">
+                        <div class="step-number">04</div>
+                        <h4>ส่งถึงที่หมาย</h4>
+                        <p>ติดตามสถานะสดผ่าน MQTT จนถึงมือผู้รับอย่างปลอดภัย</p>
+                    </div>
+                </div>
+
+                <div class="map-wrapper reveal" style="margin-top: 5rem;">
+                    <div class="map-overlay"></div>
+                    <!-- Path Visualization -->
+                    <svg class="map-svg-path" viewBox="0 0 800 500">
+                        <path d="M100,100 L250,100 L250,250 L450,250 L450,380 L650,380" fill="none"
+                            stroke="rgba(59, 130, 246, 0.4)" stroke-width="4" stroke-dasharray="8,8" />
+                        <circle cx="100" cy="100" r="8" fill="#3b82f6" />
+                        <circle cx="650" cy="380" r="8" fill="#10b981" />
+                    </svg>
+
+                    <div class="bot-marker" style="top: 230px; left: 340px;">
+                        🤖
+                        <div class="bot-label">GRAB BOT #014</div>
+                    </div>
+
+                    <div class="status-toast">
+                        <div class="status-header">
+                            <div class="status-pulse"></div>
+                            สถานะ: กำลังเดินทาง
+                        </div>
+                        <div class="status-coords">Lat: 13.7563, Lng: 100.5018</div>
+                    </div>
                 </div>
             </div>
         </div>

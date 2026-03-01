@@ -640,6 +640,65 @@
             pointer-events: none;
         }
 
+        /* ── Hardware Section ── */
+        .hw-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .hw-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hw-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary-glow), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .hw-card:hover {
+            background: rgba(59, 130, 246, 0.08);
+            border-color: var(--primary-glow);
+            transform: translateY(-5px);
+        }
+
+        .hw-card:hover::after {
+            opacity: 1;
+        }
+
+        .hw-icon {
+            font-size: 2.2rem;
+            margin-bottom: 1.2rem;
+            display: inline-block;
+        }
+
+        .hw-card h4 {
+            color: var(--text);
+            margin-bottom: 0.8rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+        }
+
+        .hw-card p {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.5;
+        }
+
         /* ── Animations ── */
         .reveal {
             opacity: 0;
@@ -680,6 +739,7 @@
                 <a href="#home" class="nav-link active">Home</a>
                 <a href="#about" class="nav-link">About Project</a>
                 <a href="#ai-integration" class="nav-link">AI Features</a>
+                <a href="#hardware" class="nav-link">Hardware</a>
                 <a href="#tech-stack" class="nav-link">Tech Stack</a>
             </div>
         </div>
@@ -796,6 +856,66 @@
                         </div>
                         <div class="status-coords">Lat: 13.7563, Lng: 100.5018</div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Hardware Section -->
+    <section id="hardware">
+        <div class="container">
+            <div class="section-subtitle reveal" style="color: var(--primary-glow);">Package Content</div>
+            <h2 class="section-title reveal">Hardware & Components</h2>
+            <p class="reveal" style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto 3rem;">
+                ชุดอุปกรณ์มาตรฐานสำหรับโครงสร้างหุ่นยนต์ขนส่ง ประกอบด้วยบอร์ดควบคุม เซ็นเซอร์ และระบบขับเคลื่อนครบวงจร
+            </p>
+
+            <div class="hw-grid">
+                <div class="hw-card reveal">
+                    <div class="hw-icon">🧠</div>
+                    <h4>Arduino Uno R3</h4>
+                    <p>บอร์ดควบคุมหลักพรีเมียม ประมวลผลลอจิกพื้นฐานและการรับค่าจากเซ็นเซอร์เพื่อควบคุมการเคลื่อนที่</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.05s;">
+                    <div class="hw-icon">📸</div>
+                    <h4>ESP32-CAM</h4>
+                    <p>ไมโครคอนโทรลเลอร์พร้อมกล้องในตัว สำหรับระบบ Computer Vision, Face ID และการสตรีมวิดีโอ</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.1s;">
+                    <div class="hw-icon">📏</div>
+                    <h4>Ultrasonic Sensor</h4>
+                    <p>HC-SR04 เซ็นเซอร์วัดระยะทางด้วยคลื่นเสียง สำหรับการตรวจจับและหลบหลีกสิ่งกีดขวางอัตโนมัติ</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.15s;">
+                    <div class="hw-icon">🔋</div>
+                    <h4>Motor Driver Expansion</h4>
+                    <p>บอร์ดขยายกำลังสำหรับควบคุมความเร็วและทิศทางของ DC Motors ทั้ง 4 ชุด พร้อมรองรับเซ็นเซอร์เสริม</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.2s;">
+                    <div class="hw-icon">🛣️</div>
+                    <h4>Line Tracking Modules</h4>
+                    <p>ชุดเซ็นเซอร์อินฟราเรด 3 ตำแหน่ง สำหรับตรวจจับเส้นทางบนพื้นดิน ช่วยให้หุ่นยนต์วิ่งตามเส้นที่กำหนด
+                    </p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.25s;">
+                    <div class="hw-icon">🔄</div>
+                    <h4>SG90 Servo Motor</h4>
+                    <p>มอเตอร์เซอร์โวขนาดเล็กสำหรับควบคุมมุมกวาดของเซ็นเซอร์หรือตำแหน่งกล้องให้ครอบคลุมพื้นที่</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.3s;">
+                    <div class="hw-icon">⚙️</div>
+                    <h4>4WD Gear Motors</h4>
+                    <p>ชุดมอเตอร์เกียร์ TT จำนวน 4 ตัว พร้อมล้อ เพื่อพลังขับเคลื่อนสี่ล้อที่มั่นคงและแม่นยำ</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.35s;">
+                    <div class="hw-icon">📡</div>
+                    <h4>Comm. Antennas</h4>
+                    <p>เสารับสัญญาณเพิ่มประสิทธิภาพการเชื่อมต่อ WiFi และ Bluetooth สำหรับระบบ Telemetry ระยะไกล</p>
+                </div>
+                <div class="hw-card reveal" style="transition-delay: 0.4s;">
+                    <div class="hw-icon">🛠️</div>
+                    <h4>Chassis & Tools</h4>
+                    <p>โครงสร้างตัวรถ (Chassis), สายแพ, คู่มือ และเครื่องมือพื้นฐานสำหรับประกอบระบบเข้าด้วยกัน</p>
                 </div>
             </div>
         </div>

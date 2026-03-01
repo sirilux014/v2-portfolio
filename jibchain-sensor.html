@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JIBCHAIN L1 Sensor Dashboard | Smile Oracle</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --success: #10b981;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --accent-glow: rgba(59, 130, 246, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--primary);
+        }
+
+        .back-link svg {
+            margin-right: 0.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .header-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .header-info .description {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            font-size: 0.75rem;
+            color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            margin-right: 6px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.4;
+            }
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 0.875rem;
+        }
+
+        .meta-item .label {
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+            display: block;
+        }
+
+        .meta-item .value {
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .external-link {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* Chart Controls */
+        .chart-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active[data-type="water_depth"] {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .toggle-btn.active[data-type="battery_voltage"] {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            margin-bottom: 2rem;
+        }
+
+        /* Table Styles */
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.875rem;
+        }
+
+        th {
+            background: #f1f5f9;
+            padding: 12px 16px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 16px;
+            border-top: 1px solid var(--border);
+        }
+
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .sample-badge {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-left: 0.5rem;
+        }
+
+        /* Loading & Error */
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fee2e2;
+            color: #b91c1c;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: none;
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .chart-container {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Fetching Blockchain Data...</p>
+    </div>
+
+    <div class="container">
+        <a href="index.html" class="back-link">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M15.8333 10H4.16667" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" />
+                <path d="M10 15.8333L4.16667 10L10 4.16667" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            Back to Journey
+        </a>
+
+        <div id="error-box" class="error-message"></div>
+
+        <div class="card">
+            <div class="header">
+                <div class="header-info">
+                    <h1 id="store-nickname">Loading...</h1>
+                    <div id="store-description" class="description">Fetching metadata from factory...</div>
+                </div>
+                <div class="status-badge">
+                    <div class="status-dot"></div>
+                    Current Block: <span id="current-block" style="margin-left: 4px;">-</span>
+                </div>
+            </div>
+
+            <div class="meta-grid">
+                <div class="meta-item">
+                    <span class="label">Store Address</span>
+                    <span class="value">
+                        <span id="store-address-short">-</span>
+                        <a id="store-link" href="#" target="_blank" class="external-link">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </a>
+                    </span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">Last Updated</span>
+                    <span class="value" id="last-updated-time">-</span>
+                </div>
+                <div class="meta-item">
+                    <span class="label">Sensor Count</span>
+                    <span class="value" id="sensor-count">-</span>
+                </div>
+            </div>
+
+            <div class="chart-controls">
+                <button class="toggle-btn active" data-type="water_depth">Water Depth</button>
+                <button class="toggle-btn" data-type="battery_voltage">Battery Voltage</button>
+            </div>
+
+            <div class="chart-container">
+                <canvas id="sensorChart"></canvas>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Current</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body">
+                        <!-- Rows will be injected here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-bottom: 2rem;">
+            Owner: <a id="owner-link" href="#" target="_blank" class="external-link" id="owner-addr">-</a> |
+            Deployed Block: <a id="deployed-link" href="#" target="_blank" class="external-link"
+                id="deployed-block-num">-</a>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createPublicClient, http, parseAbiItem } from 'https://esm.sh/viem';
+
+        // Configuration
+        const JIBCHAIN = {
+            id: 8899,
+            name: 'JIBCHAIN L1',
+            rpcUrls: { default: { http: ['https://rpc-l1.jibchain.net'] } }
+        };
+
+        const FACTORY_ADDRESS = '0x63bB41b79b5aAc6e98C7b35Dcb0fE941b85Ba5Bb';
+        const STORE_ADDRESS = '0x0994Bc66b2863f8D58C8185b1ed6147895632812'; // FloodBoy016
+        const UNIVERSAL_SIGNER = '0xcB0e58b011924e049ce4b4D62298Edf43dFF0BDd';
+        const EXPLORER_URL = 'https://exp.jibchain.net';
+
+        // ABIs
+        const FactoryABI = [
+            { "name": "getStoreInfo", "inputs": [{ "name": "store", "type": "address" }], "outputs": [{ "name": "nickname", "type": "string" }, { "name": "owner", "type": "address" }, { "name": "authorizedSensorCount", "type": "uint256" }, { "name": "deployedBlock", "type": "uint128" }, { "name": "description", "type": "string" }], "stateMutability": "view", "type": "function" }
+        ];
+
+        const StoreABI = [
+            { "name": "getAllFields", "outputs": [{ "components": [{ "name": "name", "type": "string" }, { "name": "unit", "type": "string" }, { "name": "dtype", "type": "string" }], "type": "tuple[]" }], "stateMutability": "view", "type": "function" },
+            { "name": "getLatestRecord", "inputs": [{ "name": "sensor", "type": "address" }], "outputs": [{ "name": "", "type": "uint256" }, { "name": "", "type": "int256[]" }], "stateMutability": "view", "type": "function" },
+            { "type": "event", "name": "RecordStored", "inputs": [{ "name": "sensor", "type": "address", "indexed": true }, { "name": "timestamp", "type": "uint256", "indexed": false }, { "name": "values", "type": "int256[]", "indexed": false }] }
+        ];
+
+        const client = createPublicClient({ chain: JIBCHAIN, transport: http() });
+
+        let chart = null;
+        let historicalData = [];
+        let activeType = 'water_depth';
+
+        // Formatting Helpers
+        function truncateAddr(addr) {
+            return addr.slice(0, 8) + '...' + addr.slice(-6);
+        }
+
+        function formatFieldName(name) {
+            return name.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        }
+
+        function processValue(val, unit, rawVal = null) {
+            const baseUnit = unit.replace(/ x\d+/, '');
+            if (unit.includes('x10000')) {
+                // CRITICAL: Divide by 10000 for meters
+                return (Number(val) / 10000).toFixed(4) + ' ' + baseUnit;
+            }
+            if (unit.includes('x100')) {
+                // Divide by 100 for voltage
+                return (Number(val) / 100).toFixed(3) + ' ' + baseUnit;
+            }
+            if (unit.includes('x1000')) {
+                return (Number(val) / 1000).toFixed(3) + ' ' + baseUnit;
+            }
+            return val + ' ' + unit;
+        }
+
+        // Smoothing: Simple Moving Average
+        function smoothData(data, key, windowSize = 3) {
+            return data.map((val, i, arr) => {
+                if (val[key] === null) return val;
+                const start = Math.max(0, i - Math.floor(windowSize / 2));
+                const end = Math.min(arr.length, i + Math.ceil(windowSize / 2));
+                const window = arr.slice(start, end).filter(v => v[key] !== null);
+                const sum = window.reduce((a, b) => a + b[key], 0);
+                return { ...val, [key]: sum / window.length };
+            });
+        }
+
+        // Main Init
+        async function init() {
+            try {
+                const currentBlock = await client.getBlockNumber();
+                document.getElementById('current-block').innerText = currentBlock.toString();
+
+                // 1. Store Info
+                const [nickname, owner, sensorCount, deployedBlock, description] = await client.readContract({
+                    address: FACTORY_ADDRESS,
+                    abi: FactoryABI,
+                    functionName: 'getStoreInfo',
+                    args: [STORE_ADDRESS]
+                });
+
+                document.getElementById('store-nickname').innerText = nickname;
+                document.getElementById('store-description').innerText = description;
+                document.getElementById('sensor-count').innerText = sensorCount + ' authorized sensor' + (sensorCount > 1 ? 's' : '');
+                document.getElementById('store-address-short').innerText = truncateAddr(STORE_ADDRESS);
+                document.getElementById('store-link').href = `${EXPLORER_URL}/address/${STORE_ADDRESS}`;
+                document.getElementById('owner-link').innerText = truncateAddr(owner);
+                document.getElementById('owner-link').href = `${EXPLORER_URL}/address/${owner}`;
+                document.getElementById('deployed-link').innerText = '#' + deployedBlock;
+                document.getElementById('deployed-link').href = `${EXPLORER_URL}/block/${deployedBlock}`;
+
+                // 2. Field Configuration
+                const fields = await client.readContract({
+                    address: STORE_ADDRESS,
+                    abi: StoreABI,
+                    functionName: 'getAllFields'
+                });
+
+                // 3. Latest Data
+                const [latestTs, latestValues] = await client.readContract({
+                    address: STORE_ADDRESS,
+                    abi: StoreABI,
+                    functionName: 'getLatestRecord',
+                    args: [UNIVERSAL_SIGNER]
+                });
+
+                const lastUpdated = new Date(Number(latestTs) * 1000);
+                document.getElementById('last-updated-time').innerText = lastUpdated.toLocaleTimeString();
+
+                // 4. Build Table
+                const tbody = document.getElementById('data-table-body');
+                const waterDepthCountIdx = fields.findIndex(f => f.name === 'water_depth_count');
+                const sampleCount = waterDepthCountIdx >= 0 ? Number(latestValues[waterDepthCountIdx]) : 0;
+
+                fields.forEach((field, i) => {
+                    if (field.name.includes('_count')) return; // Skip count fields as they are merged
+
+                    const row = document.createElement('tr');
+                    let displayName = formatFieldName(field.name);
+
+                    // Special format for water depth with samples
+                    if (field.name === 'water_depth') {
+                        displayName += ` (${sampleCount} samples)`;
+                    }
+
+                    // For current sample, find min/max if exist
+                    const minIdx = fields.findIndex(f => f.name === field.name + '_min');
+                    const maxIdx = fields.findIndex(f => f.name === field.name + '_max');
+
+                    row.innerHTML = `
+                        <td>${displayName}</td>
+                        <td>${processValue(latestValues[i], field.unit)}</td>
+                        <td>${minIdx >= 0 ? processValue(latestValues[minIdx], field.unit) : '-'}</td>
+                        <td>${maxIdx >= 0 ? processValue(latestValues[maxIdx], field.unit) : '-'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                // 5. Historical Data
+                const waterDepthIdx = fields.findIndex(f => f.name === 'water_depth');
+                const batteryIdx = fields.findIndex(f => f.name === 'battery_voltage');
+
+                // Paginated event fetching (max 2000 blocks per request as per prompt)
+                const fetchRange = BigInt(10000); // 10k blocks (~8 hours)
+                let fromBlock = currentBlock - fetchRange;
+                if (fromBlock < BigInt(deployedBlock)) fromBlock = BigInt(deployedBlock);
+
+                const events = await client.getContractEvents({
+                    address: STORE_ADDRESS,
+                    abi: StoreABI,
+                    eventName: 'RecordStored',
+                    args: { sensor: UNIVERSAL_SIGNER },
+                    fromBlock: fromBlock,
+                    toBlock: 'latest'
+                });
+
+                historicalData = events.map(e => ({
+                    timestamp: Number(e.args.timestamp) * 1000,
+                    water_depth: waterDepthIdx >= 0 ? Number(e.args.values[waterDepthIdx]) / 10000 : null,
+                    battery_voltage: batteryIdx >= 0 ? Number(e.args.values[batteryIdx]) / 100 : null
+                })).sort((a, b) => a.timestamp - b.timestamp);
+
+                renderChart();
+
+                document.getElementById('loading').style.display = 'none';
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('error-box').innerText = "Blockchain Error: " + err.message;
+                document.getElementById('error-box').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function renderChart() {
+            const ctx = document.getElementById('sensorChart').getContext('2d');
+            const data = smoothData(historicalData, activeType);
+
+            const config = {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: activeType === 'water_depth' ? 'Water Depth (m)' : 'Battery Voltage (V)',
+                        data: data.map(d => ({ x: d.timestamp, y: d[activeType] })),
+                        borderColor: activeType === 'water_depth' ? '#3b82f6' : '#10b981',
+                        backgroundColor: activeType === 'water_depth' ? 'rgba(59, 130, 246, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 2,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: { unit: 'hour' },
+                            grid: { display: false }
+                        },
+                        y: {
+                            beginAtZero: false,
+                            title: { display: true, text: activeType === 'water_depth' ? 'Meters (m)' : 'Volts (V)' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: (context) => {
+                                    return `${context.dataset.label}: ${context.parsed.y.toFixed(4)}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            if (chart) chart.destroy();
+            chart = new Chart(ctx, config);
+        }
+
+        // Toggle handling
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                activeType = btn.getAttribute('data-type');
+                renderChart();
+            });
+        });
+
+        init();
+    </script>
+</body>
+
+</html>

@@ -4,24 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Oracle Sprint 🏁 — Race Game</title>
+    <title>⚡ Oracle Sprint — Neon Racing</title>
     <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=JetBrains+Mono:wght@700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --bg: #07090f;
-            --surface: #0f1520;
-            --surface2: #161d2e;
-            --border: rgba(255, 255, 255, 0.08);
+            --bg: #040812;
+            --surface: rgba(15, 20, 40, 0.95);
+            --border: rgba(0, 229, 255, 0.15);
             --cyan: #00e5ff;
-            --green: #10b981;
+            --green: #00ff88;
             --yellow: #fbbf24;
-            --red: #f43f5e;
-            --purple: #a855f7;
+            --red: #ff2d55;
+            --purple: #bf5fff;
             --text: #f1f5f9;
-            --muted: #64748b;
+            --muted: #4a5568;
         }
 
         * {
@@ -52,46 +51,61 @@
 
         /* SETUP */
         #S1 {
-            background: radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, .08) 0%, transparent 70%), var(--bg);
+            background: radial-gradient(ellipse at 50% -10%, rgba(0, 229, 255, .12) 0%, rgba(100, 0, 200, .08) 60%, transparent 80%), var(--bg);
             padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #S1::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300e5ff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
         }
 
         .logo {
             text-align: center;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.75rem;
+            position: relative;
         }
 
         .logo-e {
-            font-size: 3.5rem;
-            animation: float 3s ease-in-out infinite;
+            font-size: 4rem;
             display: block;
+            filter: drop-shadow(0 0 20px rgba(0, 229, 255, 0.8));
+            animation: float 2.5s ease-in-out infinite;
         }
 
         @keyframes float {
 
             0%,
             100% {
-                transform: translateY(0)
+                transform: translateY(0) rotate(-3deg)
             }
 
             50% {
-                transform: translateY(-8px)
+                transform: translateY(-10px) rotate(3deg)
             }
         }
 
         .logo h1 {
-            font-size: 2.2rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff, var(--cyan));
+            font-size: 2.8rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #fff 0%, var(--cyan) 50%, var(--purple) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            letter-spacing: -1px;
+            text-shadow: none;
         }
 
         .logo p {
             color: var(--muted);
-            font-size: .85rem;
-            margin-top: .3rem;
+            font-size: .82rem;
+            margin-top: .4rem;
+            letter-spacing: .5px;
         }
 
         .setup-card {
@@ -101,33 +115,36 @@
             padding: 1.75rem;
             width: 100%;
             max-width: 480px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 0 40px rgba(0, 229, 255, 0.05), 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
         label {
             display: block;
-            font-size: .75rem;
-            font-weight: 600;
-            color: var(--muted);
-            letter-spacing: 1px;
+            font-size: .72rem;
+            font-weight: 700;
+            color: var(--cyan);
+            letter-spacing: 2px;
             text-transform: uppercase;
-            margin: .9rem 0 .4rem;
+            margin: .85rem 0 .35rem;
         }
 
         input {
             width: 100%;
-            background: var(--surface2);
-            border: 1px solid var(--border);
+            background: rgba(0, 229, 255, 0.04);
+            border: 1px solid rgba(0, 229, 255, 0.2);
             border-radius: 10px;
             padding: 11px 14px;
             color: var(--text);
-            font-size: 1rem;
+            font-size: .95rem;
             font-family: inherit;
             outline: none;
-            transition: border-color .2s;
+            transition: all .2s;
         }
 
         input:focus {
             border-color: var(--cyan);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.15);
         }
 
         input::placeholder {
@@ -141,44 +158,47 @@
         }
 
         .cbtn {
-            background: var(--surface2);
-            border: 2px solid var(--border);
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.08);
             border-radius: 10px;
-            padding: 10px 4px;
-            font-size: 1.3rem;
+            padding: 10px 2px;
+            font-size: 1.4rem;
             cursor: pointer;
             text-align: center;
             transition: all .2s;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 3px;
+            gap: 2px;
         }
 
         .cbtn span {
-            font-size: .6rem;
+            font-size: .55rem;
             color: var(--muted);
-            font-weight: 600;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: .5px;
         }
 
         .cbtn:hover {
-            border-color: rgba(255, 255, 255, .25);
-            transform: scale(1.05);
+            border-color: rgba(0, 229, 255, 0.4);
+            transform: scale(1.06);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.2);
         }
 
         .cbtn.sel {
             border-color: var(--cyan);
-            background: rgba(0, 229, 255, .1);
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.3);
         }
 
         .conn-row {
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: .8rem;
+            font-size: .78rem;
             color: var(--muted);
-            margin: .8rem 0 .2rem;
+            margin: .75rem 0 .2rem;
         }
 
         .dot {
@@ -191,32 +211,52 @@
 
         .dot.on {
             background: var(--green);
-            box-shadow: 0 0 8px var(--green);
+            box-shadow: 0 0 10px var(--green);
         }
 
         .sbtn {
             width: 100%;
-            padding: 14px;
-            background: var(--cyan);
+            padding: 15px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
             color: #000;
             border: none;
             border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 800;
+            font-size: 1.05rem;
+            font-weight: 900;
             cursor: pointer;
-            transition: all .2s;
-            letter-spacing: .5px;
+            transition: all .25s;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            margin-top: .8rem;
+            margin-top: .75rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sbtn::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, var(--purple), var(--cyan));
+            opacity: 0;
+            transition: opacity .25s;
         }
 
         .sbtn:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 229, 255, .4);
+            box-shadow: 0 8px 40px rgba(0, 229, 255, 0.5);
+        }
+
+        .sbtn:hover:not(:disabled)::after {
+            opacity: 1;
+        }
+
+        .sbtn span {
+            position: relative;
+            z-index: 1;
         }
 
         .sbtn:disabled {
-            opacity: .35;
+            opacity: .3;
             cursor: not-allowed;
         }
 
@@ -224,7 +264,7 @@
         #S2 {
             display: none;
             flex-direction: column;
-            padding: .5rem;
+            padding: .6rem;
             align-items: center;
             background: var(--bg);
         }
@@ -234,53 +274,57 @@
         }
 
         #gameCanvas {
-            border-radius: 14px;
-            border: 1px solid var(--border);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 229, 255, 0.2);
             max-width: 100%;
             display: block;
+            box-shadow: 0 0 60px rgba(0, 229, 255, 0.1), 0 0 120px rgba(100, 0, 200, 0.08);
         }
 
         #plist {
             width: 100%;
-            max-width: 900px;
+            max-width: 910px;
             display: flex;
             flex-direction: column;
-            gap: .4rem;
-            margin-top: .75rem;
+            gap: .35rem;
+            margin-top: .65rem;
         }
 
-        .player-bar {
-            background: var(--surface);
-            border: 1px solid var(--border);
+        .pbar {
+            background: rgba(15, 20, 40, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 10px;
             padding: 8px 14px;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: .85rem;
+            font-size: .82rem;
+            backdrop-filter: blur(8px);
         }
 
-        .player-bar.me {
-            border-color: rgba(0, 229, 255, .4);
+        .pbar.me {
+            border-color: rgba(0, 229, 255, 0.35);
+            box-shadow: 0 0 15px rgba(0, 229, 255, 0.08);
         }
 
         .bar-bg {
             flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, .07);
-            border-radius: 3px;
+            height: 7px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .bar-fill {
             height: 100%;
-            border-radius: 3px;
-            transition: width .15s ease;
+            border-radius: 4px;
+            transition: width .12s ease;
+            box-shadow: 0 0 8px currentColor;
         }
 
         /* FINISH */
         #S3 {
-            background: radial-gradient(ellipse at 50% 30%, rgba(251, 191, 36, .1) 0%, transparent 60%), var(--bg);
+            background: radial-gradient(ellipse at 50% 20%, rgba(251, 191, 36, .15) 0%, rgba(0, 229, 255, .05) 50%, transparent 70%), var(--bg);
             padding: 2rem;
             gap: 1rem;
         }
@@ -288,59 +332,61 @@
         .wcard {
             text-align: center;
             background: var(--surface);
-            border: 1px solid rgba(251, 191, 36, .3);
-            border-radius: 20px;
-            padding: 2rem;
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            border-radius: 24px;
+            padding: 2.25rem;
             max-width: 480px;
             width: 100%;
-            box-shadow: 0 0 60px rgba(251, 191, 36, .1);
+            box-shadow: 0 0 80px rgba(251, 191, 36, 0.15);
         }
 
         .wtrophy {
-            font-size: 4.5rem;
+            font-size: 5rem;
             display: block;
-            animation: bounce 1s ease-in-out infinite;
+            filter: drop-shadow(0 0 20px #fbbf24);
+            animation: bounce 0.8s ease-in-out infinite;
         }
 
         @keyframes bounce {
 
             0%,
             100% {
-                transform: scale(1) rotate(-4deg)
+                transform: scale(1) rotate(-5deg)
             }
 
             50% {
-                transform: scale(1.08) rotate(4deg)
+                transform: scale(1.12) rotate(5deg)
             }
         }
 
-        .wtitle {
-            font-size: .75rem;
+        .wlbl {
+            font-size: .72rem;
             font-weight: 700;
             letter-spacing: 3px;
             text-transform: uppercase;
             color: var(--yellow);
-            margin: .5rem 0 .3rem;
+            margin: .5rem 0 .25rem;
         }
 
-        .wchar {
+        .wchar2 {
+            font-size: 2.5rem;
+            filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.8));
+        }
+
+        .wn {
             font-size: 2.2rem;
+            font-weight: 900;
         }
 
-        .wname {
-            font-size: 2rem;
-            font-weight: 800;
-        }
-
-        .wtime {
+        .wt {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             color: var(--green);
-            margin: .3rem 0;
+            margin: .25rem 0;
         }
 
         .rlist,
-        .hofpanel {
+        .hofp {
             width: 100%;
             max-width: 480px;
             background: var(--surface);
@@ -350,66 +396,60 @@
         }
 
         .rlist h3,
-        .hofpanel h3 {
+        .hofp h3 {
             padding: 10px 18px;
-            font-size: .75rem;
-            letter-spacing: 1px;
+            font-size: .72rem;
+            letter-spacing: 2px;
             text-transform: uppercase;
-            color: var(--muted);
-            border-bottom: 1px solid var(--border);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
         }
 
-        .hofpanel h3 {
+        .hofp h3 {
             color: var(--purple);
-            background: rgba(168, 85, 247, .05);
         }
 
         .rrow,
-        .hofrow {
+        .hofr {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 18px;
-            border-bottom: 1px solid var(--border);
-            font-size: .85rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: .82rem;
         }
 
         .rrow:last-child,
-        .hofrow:last-child {
+        .hofr:last-child {
             border-bottom: none;
         }
 
-        .hofempty {
+        .hfe {
             padding: 16px;
             text-align: center;
             color: var(--muted);
-            font-size: .85rem;
+            font-size: .82rem;
         }
 
-        .hrank {
-            width: 22px;
-            font-size: .9rem;
-        }
-
-        .ag-btn {
-            padding: 12px 32px;
-            background: var(--cyan);
+        .ag {
+            padding: 13px 36px;
+            background: linear-gradient(135deg, var(--cyan), var(--purple));
             color: #000;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: .95rem;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
             transition: all .2s;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .ag-btn:hover {
+        .ag:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(0, 229, 255, .4);
+            box-shadow: 0 8px 40px rgba(0, 229, 255, 0.4);
         }
 
-        .bt-row {
+        .btrow {
             display: flex;
             gap: .75rem;
             flex-wrap: wrap;
@@ -424,14 +464,14 @@
     <!-- ── SETUP ── -->
     <div id="S1" class="screen active">
         <div class="logo">
-            <span class="logo-e">🏁</span>
+            <span class="logo-e">⚡</span>
             <h1>Oracle Sprint</h1>
-            <p>[ SPACE ] วิ่ง &nbsp;·&nbsp; [ SHIFT ] กระโดดข้ามหิน &nbsp;·&nbsp; Real-time Multiplayer</p>
+            <p>[ SPACE ] พุ่ง · [ SHIFT ] กระโดด · Real-time Multiplayer</p>
         </div>
         <div class="setup-card">
             <label>Oracle Name</label>
             <input id="iName" placeholder="e.g. Smile Oracle" maxlength="20">
-            <label>Character</label>
+            <label>Choose Character</label>
             <div class="cgrid" id="charGrid"></div>
             <label>Room Code</label>
             <input id="iRoom" value="Oracle" maxlength="20">
@@ -439,7 +479,7 @@
                 <span class="dot" id="dot"></span>
                 <span id="connTxt">Connecting to MQTT...</span>
             </div>
-            <button id="btnStart" class="sbtn" disabled>🚀 JOIN RACE</button>
+            <button id="btnStart" class="sbtn" disabled><span>⚡ ENTER THE RACE</span></button>
         </div>
     </div>
 
@@ -453,473 +493,496 @@
     <div id="S3" class="screen">
         <div class="wcard">
             <span class="wtrophy">🏆</span>
-            <div class="wtitle">Winner!</div>
-            <div class="wchar" id="wChar"></div>
-            <div class="wname" id="wName"></div>
-            <div class="wtime" id="wTime"></div>
+            <div class="wlbl">Champion!</div>
+            <div class="wchar2" id="wChar"></div>
+            <div class="wn" id="wName"></div>
+            <div class="wt" id="wTime"></div>
         </div>
         <div class="rlist" id="rList">
             <h3>🏎 Race Results</h3>
         </div>
-        <div class="hofpanel">
-            <h3>⭐ Hall of Fame</h3>
+        <div class="hofp">
+            <h3>⭐ Hall of Fame — All-Time</h3>
             <div id="hofList">
-                <div class="hofempty">Loading...</div>
+                <div class="hfe">Loading...</div>
             </div>
         </div>
-        <div class="bt-row">
-            <button class="ag-btn" onclick="location.reload()">🔁 Race Again</button>
+        <div class="btrow">
+            <button class="ag" onclick="location.reload()">⚡ Race Again</button>
             <a href="index.html"
-                style="padding:12px 20px;border:1px solid var(--border);border-radius:10px;color:var(--muted);text-decoration:none;font-size:.9rem;display:inline-flex;align-items:center;">←
+                style="padding:13px 22px;border:1px solid var(--border);border-radius:12px;color:var(--muted);text-decoration:none;font-size:.9rem;display:inline-flex;align-items:center;">←
                 Portfolio</a>
         </div>
     </div>
 
     <script>
-        // ─────────────────────────────────────────
-        // CONSTANTS
-        // ─────────────────────────────────────────
+        // ── CONSTANTS ──────────────────────────────────────
         const BROKER = 'wss://dustboy-wss-bridge.laris.workers.dev/mqtt';
-        const HOF_TOPIC = 'OracleRace/v2/hof';
-        const W = 900, H = 330;
-        const ROAD_TOP = 155, ROAD_BOT = 268;
-        const GROUND_Y = 248;      // feet of character on ground
-        const PLAYER_X = 170;      // fixed screen X of my character
-        const TRACK_PX = 6000;     // track total pixel length
-        const STEP = 1.8;          // % per spacebar press
-        const GRAVITY = 0.55;
-        const JUMP_POWER = -13;    // initial jump velocity (negative = up)
-        const JUMP_CLEAR = -32;    // yOffset must be < this to safely clear obstacle
-        const OBS_PCTS = [16, 30, 45, 60, 75, 88]; // obstacle track % positions
+        const HOF_TOPIC = 'OracleRace/v3/hof';
+        const W = 900, H = 340;
+        const ROAD_TOP = 160, ROAD_BOT = 272;
+        const GROUND_Y = 252; const PLAYER_X = 175;
+        const TRACK_PX = 6000;
+        const STEP = 1.8;
+        const GRAVITY = 0.52; const JUMP_POWER = -14;
+        const JUMP_CLEAR = -30;
+        const OBS_PCTS = [15, 28, 42, 56, 70, 84];
 
         const CHARS = [
-            { e: '🌊', n: 'Water', c: '#06b6d4' },
-            { e: '🔥', n: 'Fire', c: '#ef4444' },
-            { e: '⚡', n: 'Lightning', c: '#eab308' },
-            { e: '🌿', n: 'Nature', c: '#22c55e' },
-            { e: '🌙', n: 'Moon', c: '#a855f7' },
+            { e: '🌊', n: 'Water', c: '#00e5ff' },
+            { e: '🔥', n: 'Fire', c: '#ff4500' },
+            { e: '⚡', n: 'Lightning', c: '#fbbf24' },
+            { e: '🌿', n: 'Nature', c: '#00ff88' },
+            { e: '🌙', n: 'Moon', c: '#bf5fff' },
             { e: '⭐', n: 'Star', c: '#f59e0b' },
-            { e: '🐉', n: 'Dragon', c: '#dc2626' },
-            { e: '🦋', n: 'Spirit', c: '#ec4899' },
+            { e: '🐉', n: 'Dragon', c: '#ef4444' },
+            { e: '🦋', n: 'Spirit', c: '#f472b6' },
         ];
 
-        // ─────────────────────────────────────────
-        // STATE
-        // ─────────────────────────────────────────
+        // ── STATE ──────────────────────────────────────────
         const myId = 'p_' + Math.random().toString(36).substr(2, 7);
         let myName = '', myCharObj = CHARS[0], myRoom = 'Oracle';
         let myPos = 0, myYOff = 0, myJumpV = 0;
         let myFinished = false, myFinishTime = null;
-        let hitCD = 0, frameN = 0;
-        let gamePhase = 'setup'; // setup|countdown|running|finished
-        let cdVal = 3;
-        let startTime = null, elapsed = 0;
-        let players = {};  // id → {name,char,color,pos,yOff,finished,finishTime}
-        let hallOfFame = [];
-        let winnerSet = false;
+        let hitCD = 0, frameN = 0, shakeX = 0, shakeY = 0, shakeAmt = 0;
+        let gamePhase = 'setup';
+        let cdVal = 3, startTime = null, elapsed = 0;
+        let players = {}, hallOfFame = [], winnerSet = false;
         let client = null, lastPub = 0;
-        let spaceHeld = false;
 
-        // ─────────────────────────────────────────
-        // SETUP SCREEN
-        // ─────────────────────────────────────────
-        (function buildCharGrid() {
-            const g = document.getElementById('charGrid');
-            CHARS.forEach((ch, i) => {
-                const b = document.createElement('button');
-                b.className = 'cbtn' + (i === 0 ? ' sel' : '');
-                b.innerHTML = `${ch.e}<span>${ch.n}</span>`;
-                b.onclick = () => {
-                    document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('sel'));
-                    b.classList.add('sel');
-                    myCharObj = ch;
-                };
-                g.appendChild(b);
-            });
-        })();
+        // Combo system
+        let combo = 0, lastSpaceMs = 0;
+        const COMBO_WIN = 550;
+        let comboFlash = 0;
 
-        // ─────────────────────────────────────────
-        // CANVAS SETUP
-        // ─────────────────────────────────────────
+        // Particles
+        let parts = [];
+        function addParts(x, y, color, n = 5, type = 'spark') {
+            for (let i = 0; i < n; i++) {
+                const a = Math.random() * Math.PI * 2;
+                const sp = 1 + Math.random() * 4;
+                parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, color, life: 20 + Math.random() * 20, maxLife: 40, type, r: type === 'confetti' ? 4 + Math.random() * 4 : 2 + Math.random() * 2 });
+            }
+        }
+
+        // Stars (static world)
+        const STARS = Array.from({ length: 120 }, () => ({ wx: Math.random() * 8000, y: 5 + Math.random() * (ROAD_TOP - 20), r: Math.random() * 1.4 + 0.3, phase: Math.random() * Math.PI * 2 }));
+        // Trees
+        const TREES = [];
+        for (let i = 0; i < 32; i++) {
+            const wx = i * 200 + (i * 73) % 110;
+            TREES.push({ wx, y: ROAD_TOP - 8 - (i * 29) % 54, sz: 32 + (i * 7) % 22, e: ['🌲', '🌲', '🌳', '🌴', '🌲'][i % 5], top: true, speed: 0.62 });
+            TREES.push({ wx: wx + 95 + ((i * 61) % 90), y: ROAD_BOT + 28 + (i * 13) % 26, sz: 30 + (i * 11) % 18, e: ['🌲', '🌴', '🌳', '🌿'][i % 4], top: false, speed: 0.68 });
+        }
+        const CLOUDS = Array.from({ length: 8 }, (_, i) => ({ wx: i * 1000 + (i * 177) % 350, y: 12 + (i * 41) % 55 }));
+
+        // Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = W; canvas.height = H;
 
-        // ─────────────────────────────────────────
-        // WORLD HELPERS
-        // ─────────────────────────────────────────
-        function w2s(wx) { return PLAYER_X + (wx - (myPos / 100) * TRACK_PX); }
-
-        // Pre-generate scenery
-        const TREES = [];
-        for (let i = 0; i < 30; i++) {
-            const wx = i * 220 + (i * 73) % 120;
-            TREES.push({ wx, y: ROAD_TOP - 12 - (i * 31) % 50, sz: 34 + (i * 7) % 18, e: ['🌲', '🌲', '🌳', '🌴'][i % 4], top: true });
-            TREES.push({ wx: wx + 110 + ((i * 59) % 80), y: ROAD_BOT + 30 + (i * 17) % 22, sz: 32 + (i * 11) % 16, e: ['🌲', '🌴', '🌳', '🌿'][i % 4], top: false });
+        // Web Audio
+        let audioCtx = null;
+        function getAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+        function tone(freq, dur, vol = 0.12, type = 'sine', delay = 0) {
+            try {
+                const a = getAudio();
+                const o = a.createOscillator(), g = a.createGain();
+                o.connect(g); g.connect(a.destination);
+                o.type = type; o.frequency.value = freq;
+                g.gain.setValueAtTime(vol, a.currentTime + delay);
+                g.gain.exponentialRampToValueAtTime(0.001, a.currentTime + delay + dur);
+                o.start(a.currentTime + delay); o.stop(a.currentTime + delay + dur);
+            } catch (_) { }
         }
-        const CLOUDS = Array.from({ length: 10 }, (_, i) => ({ wx: i * 900 + (i * 137) % 300, y: 18 + (i * 43) % 60 }));
+        function sndStep() { tone(300, 0.04, 0.06, 'square'); }
+        function sndJump() { tone(500, 0.12, 0.1, 'sine'); tone(700, 0.12, 0.06, 'sine', 0.06); }
+        function sndHit() { tone(80, 0.25, 0.15, 'sawtooth'); tone(60, 0.3, 0.1, 'square', 0.05); }
+        function sndCombo() { tone(600 + combo * 80, 0.08, 0.1, 'sine'); }
+        function sndWin() { [262, 330, 392, 523, 659].forEach((f, i) => tone(f, 0.25, 0.12, 'sine', i * 0.14)); }
 
-        // ─────────────────────────────────────────
-        // DRAW FUNCTIONS
-        // ─────────────────────────────────────────
+        // ── HELPERS ───────────────────────────────────────
+        function w2s(wx) { return PLAYER_X + (wx - (myPos / 100) * TRACK_PX); }
+        function glow(c, b = 20) { ctx.shadowColor = c; ctx.shadowBlur = b; }
+        function noglow() { ctx.shadowColor = 'transparent'; ctx.shadowBlur = 0; }
+
+        // ── DRAW ──────────────────────────────────────────
         function drawBG() {
-            // Sky
+            // Neon night sky
             const sky = ctx.createLinearGradient(0, 0, 0, ROAD_TOP);
-            sky.addColorStop(0, '#60a5fa');
-            sky.addColorStop(1, '#a3e635');
+            sky.addColorStop(0, '#020614');
+            sky.addColorStop(0.6, '#0a1028');
+            sky.addColorStop(1, '#0d1a40');
             ctx.fillStyle = sky; ctx.fillRect(0, 0, W, ROAD_TOP);
-
-            // Distant hills
-            ctx.fillStyle = '#4ade80';
-            ctx.beginPath(); ctx.moveTo(0, ROAD_TOP);
+            // Stars
+            STARS.forEach(s => {
+                const sx = w2s(s.wx * 0.05);
+                if (sx < 0 || sx > W) return;
+                const bri = 0.4 + 0.6 * Math.sin(frameN * 0.05 + s.phase);
+                ctx.fillStyle = `rgba(255,255,255,${bri})`;
+                ctx.beginPath(); ctx.arc(sx, s.y, s.r, 0, Math.PI * 2); ctx.fill();
+            });
+            // Clouds (ultra slow)
+            CLOUDS.forEach(c => {
+                const sx = w2s(c.wx * 0.04);
+                if (sx < -80 || sx > W + 80) return;
+                ctx.globalAlpha = 0.25;
+                ctx.font = '30px serif';
+                ctx.fillText('☁️', sx, c.y);
+                ctx.fillText('☁️', sx + 34, c.y - 6);
+                ctx.globalAlpha = 1;
+            });
+            // Distant neon hills
             const mwx = (myPos / 100) * TRACK_PX;
-            for (let x = 0; x <= W; x += 8) {
-                const hx = mwx * 0.06 + x;
-                const y = ROAD_TOP - 22 - 16 * Math.sin(hx / 200) - 10 * Math.sin(hx / 80);
+            ctx.fillStyle = '#0d1038';
+            ctx.beginPath(); ctx.moveTo(0, ROAD_TOP);
+            for (let x = 0; x <= W; x += 6) {
+                const hx = mwx * 0.04 + x;
+                const y = ROAD_TOP - 18 - 12 * Math.sin(hx / 280) - 8 * Math.sin(hx / 100);
                 x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
             }
             ctx.lineTo(W, ROAD_TOP); ctx.closePath(); ctx.fill();
-
-            // Clouds
-            CLOUDS.forEach(c => {
-                const sx = w2s(c.wx * 0.1);
-                if (sx < -80 || sx > W + 80) return;
-                ctx.globalAlpha = 0.65;
-                ctx.font = '32px serif';
-                ctx.fillText('☁️', sx, c.y);
-                ctx.fillText('☁️', sx + 38, c.y - 8);
-                ctx.globalAlpha = 1;
-            });
+            // Hill neon outline
+            glow('#00e5ff', 8);
+            ctx.strokeStyle = 'rgba(0,229,255,0.3)'; ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            for (let x = 0; x <= W; x += 6) {
+                const hx = mwx * 0.04 + x;
+                const y = ROAD_TOP - 18 - 12 * Math.sin(hx / 280) - 8 * Math.sin(hx / 100);
+                x === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            }
+            ctx.stroke(); noglow();
         }
 
         function drawRoad() {
             // Road surface
-            ctx.fillStyle = '#1e293b'; ctx.fillRect(0, ROAD_TOP, W, ROAD_BOT - ROAD_TOP);
-
-            // Top edge fencing
-            ctx.fillStyle = '#fff'; ctx.fillRect(0, ROAD_TOP, W, 3);
-            ctx.fillStyle = '#fff'; ctx.fillRect(0, ROAD_BOT - 3, W, 3);
-
-            // Road stripes (decorative)
-            for (let lx = 0; lx < W; lx += 30) {
-                ctx.fillStyle = 'rgba(255,255,255,0.06)';
-                ctx.fillRect(lx, ROAD_TOP + 20, 14, ROAD_BOT - ROAD_TOP - 40);
-            }
-
-            // Center dashed line (scroll with track)
+            ctx.fillStyle = '#0a0f1c'; ctx.fillRect(0, ROAD_TOP, W, ROAD_BOT - ROAD_TOP);
+            // Road subtle grid
+            ctx.strokeStyle = 'rgba(0,229,255,0.04)'; ctx.lineWidth = 1;
+            for (let y = ROAD_TOP; y < ROAD_BOT; y += 20) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+            // Top neon line
+            glow('#00e5ff', 18);
+            ctx.fillStyle = '#00e5ff'; ctx.fillRect(0, ROAD_TOP, W, 2.5);
+            // Bottom neon line
+            glow('#bf5fff', 18);
+            ctx.fillStyle = '#bf5fff'; ctx.fillRect(0, ROAD_BOT - 2.5, W, 2.5);
+            noglow();
+            // Center dashes
             const off = (((myPos / 100) * TRACK_PX) % 80);
-            ctx.setLineDash([50, 30]);
-            ctx.setLineDashOffset(-off);
-            ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.moveTo(0, (ROAD_TOP + ROAD_BOT) / 2);
-            ctx.lineTo(W, (ROAD_TOP + ROAD_BOT) / 2);
-            ctx.stroke();
-            ctx.setLineDash([]); ctx.setLineDashOffset(0);
-
+            ctx.setLineDash([50, 30]); ctx.setLineDashOffset(-off);
+            glow('#fbbf24', 6);
+            ctx.strokeStyle = 'rgba(251,191,36,0.4)'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.moveTo(0, (ROAD_TOP + ROAD_BOT) / 2); ctx.lineTo(W, (ROAD_TOP + ROAD_BOT) / 2); ctx.stroke();
+            ctx.setLineDash([]); ctx.setLineDashOffset(0); noglow();
             // Start line
-            const sx0 = w2s(0);
-            drawCheckered(sx0);
-
+            drawCheckered(w2s(0), '#00ff88');
             // Finish line
-            const sxF = w2s(TRACK_PX);
-            drawCheckered(sxF, '#fbbf24');
-            if (sxF > 0 && sxF < W) { ctx.font = '16px serif'; ctx.fillText('🏁', sxF - 6, ROAD_TOP - 10); }
+            const sfx = w2s(TRACK_PX);
+            drawCheckered(sfx, '#fbbf24');
+            if (sfx > -10 && sfx < W + 10) { glow('#fbbf24', 20); ctx.font = '20px serif'; ctx.fillText('🏁', sfx - 8, ROAD_TOP - 8); noglow(); }
         }
 
-        function drawCheckered(sx, glow) {
+        function drawCheckered(sx, gc) {
             if (sx < -14 || sx > W + 14) return;
             const sqh = (ROAD_BOT - ROAD_TOP) / 8;
-            for (let i = 0; i < 8; i++) {
-                ctx.fillStyle = i % 2 === 0 ? '#fff' : '#111';
-                ctx.fillRect(sx - 5, ROAD_TOP + i * sqh, 10, sqh);
-            }
-            if (glow) {
-                ctx.strokeStyle = glow; ctx.lineWidth = 2;
-                ctx.strokeRect(sx - 5, ROAD_TOP, 10, ROAD_BOT - ROAD_TOP);
-            }
+            for (let i = 0; i < 8; i++) { ctx.fillStyle = i % 2 === 0 ? '#eee' : '#111'; ctx.fillRect(sx - 5, ROAD_TOP + i * sqh, 10, sqh); }
+            glow(gc, 15);
+            ctx.strokeStyle = gc; ctx.lineWidth = 2;
+            ctx.strokeRect(sx - 5, ROAD_TOP, 10, ROAD_BOT - ROAD_TOP);
+            noglow();
         }
 
         function drawTrees() {
-            const topTrees = TREES.filter(t => t.top);
-            topTrees.forEach(t => {
-                const sx = w2s(t.wx * 0.65);
+            TREES.filter(t => t.top).forEach(t => {
+                const sx = w2s(t.wx * t.speed);
                 if (sx < -60 || sx > W + 60) return;
+                glow('#00ff88', 12);
                 ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y);
+                noglow();
             });
         }
-
-        function drawBottomTrees() {
-            const botTrees = TREES.filter(t => !t.top);
-            botTrees.forEach(t => {
-                const sx = w2s(t.wx * 0.65);
-                if (sx < -60 || sx > W + 60) return;
-                ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y);
-            });
-        }
-
-        function drawGrass() {
+        function drawGrassAndBotTrees() {
+            // Grass
             const g = ctx.createLinearGradient(0, ROAD_BOT, 0, H);
-            g.addColorStop(0, '#16a34a'); g.addColorStop(1, '#166534');
+            g.addColorStop(0, '#052e16'); g.addColorStop(1, '#14532d');
             ctx.fillStyle = g; ctx.fillRect(0, ROAD_BOT, W, H - ROAD_BOT);
+            // Bot trees
+            TREES.filter(t => !t.top).forEach(t => {
+                const sx = w2s(t.wx * t.speed);
+                if (sx < -60 || sx > W + 60) return;
+                glow('#00ff88', 8);
+                ctx.font = t.sz + 'px serif'; ctx.fillText(t.e, sx, t.y);
+                noglow();
+            });
         }
 
         function drawObstacles() {
-            OBS_PCTS.forEach(pct => {
+            OBS_PCTS.forEach((pct) => {
                 const sx = w2s((pct / 100) * TRACK_PX);
-                if (sx < -50 || sx > W + 50) return;
-                ctx.font = '38px serif';
-                ctx.fillText('🪨', sx - 19, GROUND_Y + 4);
+                if (sx < -60 || sx > W + 80) return;
+                const pulse = Math.sin(frameN * 0.12) * 3;
+                glow('#ff2d55', 18 + pulse);
+                ctx.font = `${38 + pulse}px serif`; ctx.fillText('🪨', sx - 19, GROUND_Y + 6);
+                noglow();
             });
+        }
+
+        function drawSpeedLines() {
+            if (combo < 2) return;
+            const alpha = Math.min(0.5, combo * 0.06);
+            ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 12; i++) {
+                const y = ROAD_TOP + Math.random() * (ROAD_BOT - ROAD_TOP);
+                const len = 40 + combo * 15 + Math.random() * 60;
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(len, y); ctx.stroke();
+            }
         }
 
         function drawOtherPlayers() {
             Object.values(players).forEach(p => {
                 if (p.id === myId) return;
                 const psx = w2s((p.pos / 100) * TRACK_PX);
-                if (psx < -60 || psx > W + 80) return;
+                if (psx < -80 || psx > W + 80) return;
                 const psy = GROUND_Y + (p.yOff || 0) - 8;
+                glow(p.color || '#fff', 12);
                 ctx.globalAlpha = 0.55;
-                ctx.font = '38px serif';
-                ctx.fillText(p.char, psx - 19, psy);
-                ctx.globalAlpha = 1;
-                ctx.fillStyle = p.color || '#94a3b8';
-                ctx.font = '10px Inter,sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText(p.name.substring(0, 10), psx, GROUND_Y + 18);
-                ctx.textAlign = 'left';
+                ctx.font = '40px serif'; ctx.fillText(p.char, psx - 20, psy);
+                ctx.globalAlpha = 1; noglow();
+                ctx.fillStyle = p.color || '#94a3b8'; ctx.font = '10px Inter,sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(p.name.substring(0, 12), psx, GROUND_Y + 18); ctx.textAlign = 'left';
             });
         }
 
         function drawMyPlayer() {
-            if (hitCD > 0 && Math.floor(hitCD / 5) % 2 === 0) { ctx.globalAlpha = 0.25; }
-            const tilt = (frameN % 30 < 15) ? 0.08 : -0.08;
+            if (hitCD > 0 && Math.floor(hitCD / 5) % 2 === 0) { ctx.globalAlpha = 0.2; }
+            const tilt = (frameN % 28 < 14) ? 0.09 : -0.09;
             const sy = GROUND_Y + myYOff - 10;
-            ctx.save();
-            ctx.translate(PLAYER_X + 2, sy);
-            ctx.rotate(tilt);
-            ctx.font = '44px serif';
-            ctx.fillText(myCharObj.e, -22, 0);
+            glow(myCharObj.c, 22);
+            ctx.save(); ctx.translate(PLAYER_X, sy); ctx.rotate(tilt);
+            ctx.font = '44px serif'; ctx.fillText(myCharObj.e, -22, 0);
             ctx.restore();
-            ctx.globalAlpha = 1;
+            noglow(); ctx.globalAlpha = 1;
+        }
+
+        function drawParticles() {
+            parts = parts.filter(p => p.life > 0);
+            parts.forEach(p => {
+                p.x += p.vx; p.y += p.vy; p.vy += 0.15; p.life--;
+                const alpha = p.life / p.maxLife;
+                ctx.globalAlpha = alpha;
+                if (p.type === 'confetti') {
+                    ctx.fillStyle = p.color;
+                    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(frameN * 0.1 + p.vx);
+                    ctx.fillRect(-p.r / 2, -p.r / 2, p.r, p.r); ctx.restore();
+                } else {
+                    glow(p.color, 8);
+                    ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill(); noglow();
+                }
+                ctx.globalAlpha = 1;
+            });
         }
 
         function drawHUD() {
             // Timer
-            const tStr = elapsed.toFixed(1) + 's';
-            ctx.fillStyle = 'rgba(0,0,0,0.55)';
-            ctx.beginPath(); ctx.roundRect(W - 102, 8, 94, 34, 8); ctx.fill();
-            ctx.fillStyle = '#fbbf24';
-            ctx.font = 'bold 18px "JetBrains Mono",monospace';
-            ctx.textAlign = 'right';
-            ctx.fillText(tStr, W - 14, 31);
-            ctx.textAlign = 'left';
+            ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(W - 108, 8, 100, 36, 8); ctx.fill();
+            glow('#fbbf24', 10);
+            ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 19px "JetBrains Mono",monospace';
+            ctx.textAlign = 'right'; ctx.fillText(elapsed.toFixed(1) + 's', W - 14, 33);
+            ctx.textAlign = 'left'; noglow();
 
             // Progress bar card
-            ctx.fillStyle = 'rgba(0,0,0,0.55)';
-            ctx.beginPath(); ctx.roundRect(8, 8, 220, 56, 10); ctx.fill();
-            ctx.fillStyle = 'rgba(255,255,255,0.07)';
-            ctx.beginPath(); ctx.roundRect(16, 38, 200, 12, 5); ctx.fill();
+            ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.beginPath(); ctx.roundRect(8, 8, 225, 58, 10); ctx.fill();
+            ctx.fillStyle = 'rgba(255,255,255,0.05)'; ctx.beginPath(); ctx.roundRect(16, 40, 205, 12, 5); ctx.fill();
+            glow(myCharObj.c, 10);
             ctx.fillStyle = myCharObj.c;
-            const barW = Math.min(200, (myPos / 100) * 200);
-            ctx.beginPath(); ctx.roundRect(16, 38, barW, 12, 5); ctx.fill();
-            ctx.fillStyle = '#f1f5f9';
-            ctx.font = 'bold 12px Inter,sans-serif';
-            ctx.fillText(`${myCharObj.e} ${myName || 'You'}`, 14, 32);
-            ctx.fillStyle = '#94a3b8';
-            ctx.font = '11px Inter,sans-serif';
-            ctx.textAlign = 'right'; ctx.fillText(myPos.toFixed(1) + '%', 214, 32); ctx.textAlign = 'left';
+            ctx.beginPath(); ctx.roundRect(16, 40, Math.min(205, (myPos / 100) * 205), 12, 5); ctx.fill(); noglow();
+            ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 12px Inter,sans-serif';
+            ctx.fillText(`${myCharObj.e} ${myName || 'You'}`, 14, 33);
+            ctx.fillStyle = 'rgba(255,255,255,0.5)'; ctx.font = '11px Inter,sans-serif';
+            ctx.textAlign = 'right'; ctx.fillText(myPos.toFixed(1) + '%', 218, 33); ctx.textAlign = 'left';
+
+            // Combo display
+            if (combo >= 2) {
+                const cf = Math.min(1, comboFlash / 15);
+                ctx.fillStyle = `rgba(251,191,36,${0.12 + cf * 0.2})`;
+                ctx.beginPath(); ctx.roundRect(8, 76, 225, 34, 8); ctx.fill();
+                glow('#fbbf24', comboFlash > 0 ? 20 : 0);
+                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 13px Inter,sans-serif';
+                ctx.fillText(`⚡ COMBO ×${combo}`, 14, 98); noglow();
+            }
+            if (comboFlash > 0) comboFlash--;
 
             // Key hint
-            if (!myFinished) {
-                ctx.fillStyle = 'rgba(0,0,0,0.4)';
-                ctx.beginPath(); ctx.roundRect(W / 2 - 148, H - 42, 296, 32, 8); ctx.fill();
-                ctx.fillStyle = '#cbd5e1';
-                ctx.font = '11px Inter,sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('[SPACE] วิ่ง  ·  [SHIFT] กระโดด 🪨  ·  อย่าชนหิน!', W / 2, H - 21);
-                ctx.textAlign = 'left';
+            if (!myFinished && gamePhase === 'running') {
+                ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.beginPath(); ctx.roundRect(W / 2 - 160, H - 42, 320, 32, 8); ctx.fill();
+                ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = '11px Inter,sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText('[SPACE] พุ่ง  ·  [SHIFT] กระโดด  ·  อย่าชนหิน 🪨', W / 2, H - 21); ctx.textAlign = 'left';
             }
 
-            // Red vignette on hit
+            // Hit vignette
             if (hitCD > 0) {
-                ctx.strokeStyle = `rgba(239,68,68,${Math.min(0.7, hitCD / 90 * 0.7)})`;
-                ctx.lineWidth = 18; ctx.strokeRect(0, 0, W, H);
+                const hv = ctx.createRadialGradient(W / 2, H / 2, 100, W / 2, H / 2, W * 0.7);
+                hv.addColorStop(0, 'transparent');
+                hv.addColorStop(1, `rgba(255,45,85,${Math.min(0.7, hitCD / 90 * 0.7)})`);
+                ctx.fillStyle = hv; ctx.fillRect(0, 0, W, H);
             }
 
-            // Finish banner
+            // Finish glow
             if (myFinished) {
-                ctx.fillStyle = 'rgba(251,191,36,0.15)';
-                ctx.fillRect(0, 0, W, H);
-                ctx.fillStyle = '#fbbf24';
-                ctx.font = 'bold 38px Inter,sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('🏁 FINISHED! ' + myFinishTime + 's 🏁', W / 2, H / 2);
-                ctx.textAlign = 'left';
+                glow('#fbbf24', 30);
+                ctx.fillStyle = '#fbbf24'; ctx.font = 'bold 36px Inter,sans-serif'; ctx.textAlign = 'center';
+                const pulse = 1 + 0.05 * Math.sin(frameN * 0.1);
+                ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(pulse, pulse);
+                ctx.fillText('🏁 ' + myFinishTime + 's 🏁', 0, 0); ctx.restore();
+                ctx.textAlign = 'left'; noglow();
             }
         }
 
         function drawCountdown() {
-            ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(0, 0, W, H);
-            ctx.fillStyle = '#f1f5f9'; ctx.font = 'bold 22px Inter,sans-serif'; ctx.textAlign = 'center';
-            ctx.fillText('GET READY!', W / 2, H / 2 - 45);
-            ctx.fillStyle = '#fbbf24';
-            ctx.font = 'bold 100px Inter,sans-serif';
-            ctx.fillText(cdVal > 0 ? cdVal : 'GO!', W / 2, H / 2 + 38);
-            ctx.textAlign = 'left';
+            ctx.fillStyle = 'rgba(2,6,20,0.75)'; ctx.fillRect(0, 0, W, H);
+            ctx.textAlign = 'center';
+            const scale = cdVal > 0 ? 1 : 1.3;
+            ctx.save(); ctx.translate(W / 2, H / 2); ctx.scale(scale, scale);
+            glow(cdVal > 0 ? '#fbbf24' : '#00e5ff', 40);
+            ctx.fillStyle = cdVal > 0 ? '#fbbf24' : '#00e5ff';
+            ctx.font = `bold 110px Inter,sans-serif`;
+            ctx.fillText(cdVal > 0 ? cdVal : 'GO!', 0, 42);
+            noglow(); ctx.restore();
+            ctx.fillStyle = 'rgba(255,255,255,0.6)'; ctx.font = 'bold 18px Inter,sans-serif';
+            ctx.fillText('GET READY!', W / 2, H / 2 - 55); ctx.textAlign = 'left';
         }
 
-        // ─────────────────────────────────────────
-        // GAME LOOP
-        // ─────────────────────────────────────────
+        // ── GAME LOOP ──────────────────────────────────────
         function update() {
             if (gamePhase !== 'running') return;
             frameN++;
 
             // Jump physics
             if (myYOff < 0 || myJumpV !== 0) {
-                myYOff += myJumpV;
-                myJumpV += GRAVITY;
+                myYOff += myJumpV; myJumpV += GRAVITY;
                 if (myYOff >= 0) { myYOff = 0; myJumpV = 0; }
             }
+
+            // Screen shake decay
+            if (shakeAmt > 0) { shakeAmt *= 0.75; shakeX = (Math.random() - 0.5) * shakeAmt; shakeY = (Math.random() - 0.5) * shakeAmt; if (shakeAmt < 0.5) { shakeAmt = 0; shakeX = shakeY = 0; } }
 
             // Collision
             if (hitCD > 0) hitCD--;
             else {
                 OBS_PCTS.forEach(pct => {
                     const sx = w2s((pct / 100) * TRACK_PX);
-                    if (sx > PLAYER_X - 26 && sx < PLAYER_X + 26) {
-                        if (myYOff < JUMP_CLEAR) return; // jumped over!
-                        // HIT
+                    if (sx > PLAYER_X - 28 && sx < PLAYER_X + 28) {
+                        if (myYOff < JUMP_CLEAR) return;
                         myPos = Math.max(0, myPos - 8);
-                        hitCD = 90;
+                        hitCD = 90; shakeAmt = 12; combo = 0;
+                        sndHit();
+                        for (let i = 0; i < 20; i++) addParts(PLAYER_X, GROUND_Y + myYOff, '#ff2d55', 1, 'spark');
                     }
                 });
             }
 
             elapsed = startTime ? (Date.now() - startTime) / 1000 : 0;
 
+            // Footstep particles
+            if (frameN % 8 === 0 && myPos > 0) addParts(PLAYER_X - 22, GROUND_Y - 5, myCharObj.c, 2, 'spark');
+
             if (myPos >= 100 && !myFinished) {
-                myFinished = true;
-                myFinishTime = elapsed.toFixed(2);
-                pubMe(true);
-                setTimeout(checkWinner, 1200);
+                myFinished = true; myFinishTime = elapsed.toFixed(2);
+                pubMe(true); sndWin();
+                for (let i = 0; i < 80; i++) {
+                    const colors = ['#fbbf24', '#00e5ff', '#00ff88', '#bf5fff', '#ff2d55', '#fff'];
+                    addParts(W / 2 + ((Math.random() - 0.5) * 200), GROUND_Y - 60, colors[Math.floor(Math.random() * colors.length)], 1, 'confetti');
+                }
+                setTimeout(checkWinner, 1500);
             }
 
-            if (Date.now() - lastPub > 150) pubMe(false);
+            if (Date.now() - lastPub > 140) pubMe(false);
         }
 
         function render() {
             ctx.clearRect(0, 0, W, H);
+            ctx.save();
+            if (shakeAmt > 0) ctx.translate(shakeX, shakeY);
             drawBG();
             drawTrees();
+            drawSpeedLines();
             drawRoad();
             drawObstacles();
             drawOtherPlayers();
-            drawGrass();
-            drawBottomTrees();
+            drawGrassAndBotTrees();
+            drawParticles();
             drawMyPlayer();
             drawHUD();
             if (gamePhase === 'countdown') drawCountdown();
+            ctx.restore();
         }
 
         let raf = null;
-        function loop() {
-            update(); render();
-            raf = requestAnimationFrame(loop);
-        }
+        function loop() { update(); render(); raf = requestAnimationFrame(loop); }
 
-        // ─────────────────────────────────────────
-        // MULTIPLAYER - PLAYERS LIST
-        // ─────────────────────────────────────────
+        // ── PLAYERS LIST ──────────────────────────────────
         function renderPList() {
-            const all = [{ id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos, finished: myFinished, finishTime: myFinishTime },
-            ...Object.values(players)].sort((a, b) => b.pos - a.pos);
-            const c = document.getElementById('plist');
-            c.innerHTML = all.map(p => `
-        <div class="player-bar ${p.id === myId ? 'me' : ''}">
-            <span>${p.char}</span>
-            <span style="font-weight:600;min-width:110px">${p.name.substring(0, 14)}${p.id === myId ? ' <span style="font-size:.65rem;background:var(--cyan);color:#000;padding:2px 5px;border-radius:3px;font-weight:700">YOU</span>' : ''}</span>
-            <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, p.pos || 0)}%;background:${p.color || '#64748b'}"></div></div>
-            <span style="font-family:'JetBrains Mono',monospace;font-size:.8rem;color:#94a3b8;min-width:45px;text-align:right">${(p.pos || 0).toFixed(0)}%</span>
-            ${p.finished ? `<span style="font-size:.75rem;color:var(--green)">${p.finishTime}s</span>` : ''}
-        </div>
-    `).join('');
+            const all = [{ id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos, finished: myFinished, finishTime: myFinishTime }, ...Object.values(players)].sort((a, b) => b.pos - a.pos);
+            document.getElementById('plist').innerHTML = all.map(p => `
+        <div class="pbar ${p.id === myId ? 'me' : ''}">
+            <span style="font-size:1.1rem">${p.char}</span>
+            <span style="font-weight:700;min-width:100px;font-size:.8rem">${p.name.substring(0, 14)}${p.id === myId ? ' <span style="font-size:.6rem;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px">YOU</span>' : ''}</span>
+            <div class="bar-bg"><div class="bar-fill" style="width:${Math.min(100, p.pos || 0)}%;background:${p.color || '#666'};color:${p.color || '#666'}"></div></div>
+            <span style="font-family:'JetBrains Mono',monospace;font-size:.78rem;color:${p.color || '#666'};min-width:42px;text-align:right">${(p.pos || 0).toFixed(0)}%</span>
+            ${p.finished ? `<span style="font-size:.72rem;color:var(--green)">${p.finishTime}s</span>` : ''}
+        </div>`).join('');
         }
-        setInterval(renderPList, 200);
+        setInterval(renderPList, 180);
 
-        // ─────────────────────────────────────────
-        // WINNER / FINISH
-        // ─────────────────────────────────────────
+        // ── WINNER ────────────────────────────────────────
         function checkWinner() {
             if (winnerSet) return;
             const fin = Object.values(players).filter(p => p.finished);
             if (myFinished) fin.push({ id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: 100, finished: true, finishTime: myFinishTime });
-            if (fin.length === 0) return;
+            if (!fin.length) return;
             fin.sort((a, b) => parseFloat(a.finishTime) - parseFloat(b.finishTime));
             winnerSet = true;
-            showFinish(fin[0], fin);
-        }
-
-        function showFinish(winner, finishedList) {
-            document.getElementById('wChar').textContent = winner.char;
-            document.getElementById('wName').textContent = winner.name;
-            document.getElementById('wTime').textContent = winner.finishTime + 's';
-
-            // Results
-            const allP = [...finishedList, ...Object.values({ ...players, [myId]: { id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos, finished: myFinished, finishTime: myFinishTime } })
-                .filter(p => !p.finished)];
+            const allP = [...fin, ...Object.values({ ...players, [myId]: { id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos, finished: myFinished, finishTime: myFinishTime } }).filter(p => !p.finished)];
+            document.getElementById('wChar').textContent = fin[0].char;
+            document.getElementById('wName').textContent = fin[0].name;
+            document.getElementById('wTime').textContent = fin[0].finishTime + 's';
             const medals = ['🥇', '🥈', '🥉'];
-            const rl = document.getElementById('rList');
-            rl.innerHTML = '<h3>🏎 Race Results</h3>' + allP.map((p, i) => `
+            document.getElementById('rList').innerHTML = '<h3>🏎 Race Results</h3>' + allP.map((p, i) => `
         <div class="rrow">
             <span>${medals[i] || '#' + (i + 1)}</span>
             <span>${p.char}</span>
-            <span style="flex:1;font-weight:600">${p.name}${p.id === myId ? ' <span style="font-size:.65rem;background:var(--cyan);color:#000;padding:2px 5px;border-radius:3px">YOU</span>' : ''}</span>
-            ${p.finishTime ? `<span style="font-family:'JetBrains Mono',monospace;color:var(--green)">${p.finishTime}s` : '<span style="color:var(--muted);font-size:.8rem">DNS</span>'}
+            <span style="flex:1;font-weight:600">${p.name}${p.id === myId ? ' <span style="font-size:.6rem;background:var(--cyan);color:#000;padding:1px 5px;border-radius:3px">YOU</span>' : ''}</span>
+            ${p.finishTime ? `<span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.82rem">${p.finishTime}s</span>` : `<span style="color:var(--muted);font-size:.75rem">DNS</span>`}
         </div>`).join('');
-
-            // Update HoF if I finished
             if (myFinished) updateHoF();
             renderHoF();
-
-            // Switch screen after brief delay
-            setTimeout(() => {
-                cancelAnimationFrame(raf);
-                show('S3');
-            }, 1800);
+            setTimeout(() => { cancelAnimationFrame(raf); show('S3'); }, 2000);
         }
 
-        // ─────────────────────────────────────────
-        // HALL OF FAME
-        // ─────────────────────────────────────────
+        // ── HOF ───────────────────────────────────────────
         function updateHoF() {
             hallOfFame.push({ name: myName, char: myCharObj.e, time: parseFloat(myFinishTime), date: new Date().toLocaleDateString('th-TH') });
             hallOfFame.sort((a, b) => a.time - b.time);
             hallOfFame = hallOfFame.slice(0, 10);
-            if (client && client.connected)
-                client.publish(HOF_TOPIC, JSON.stringify(hallOfFame), { qos: 1, retain: true });
+            if (client && client.connected) client.publish(HOF_TOPIC, JSON.stringify(hallOfFame), { qos: 1, retain: true });
         }
         function renderHoF() {
             const h = document.getElementById('hofList');
-            if (!hallOfFame.length) { h.innerHTML = '<div class="hofempty">No records yet — Be the first! 🌊</div>'; return; }
+            if (!hallOfFame.length) { h.innerHTML = '<div class="hfe">No records yet — Be the first! ⚡</div>'; return; }
             const rank = (i) => ['🥇', '🥈', '🥉'][i] || '#' + (i + 1);
             h.innerHTML = hallOfFame.map((e, i) => `
-        <div class="hofrow">
-            <span class="hrank">${rank(i)}</span>
+        <div class="hofr">
+            <span style="width:22px">${rank(i)}</span>
             <span>${e.char}</span>
             <span style="flex:1;font-weight:600">${e.name}</span>
-            <span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.85rem">${e.time.toFixed(2)}s</span>
-            <span style="color:var(--muted);font-size:.75rem;margin-left:4px">${e.date}</span>
+            <span style="font-family:'JetBrains Mono',monospace;color:var(--green);font-size:.82rem">${e.time.toFixed(2)}s</span>
+            <span style="color:var(--muted);font-size:.72rem;margin-left:4px">${e.date}</span>
         </div>`).join('');
         }
 
-        // ─────────────────────────────────────────
-        // MQTT
-        // ─────────────────────────────────────────
-        function mqttBase(room) { return `OracleRace/v2/${room}`; }
-
+        // ── MQTT ─────────────────────────────────────────
+        function mqttBase(r) { return `OracleRace/v3/${r}`; }
         function initMQTT() {
             client = mqtt.connect(BROKER, { reconnectPeriod: 3000 });
             client.on('connect', () => {
@@ -927,100 +990,90 @@
                 document.getElementById('btnStart').disabled = false;
                 client.subscribe(HOF_TOPIC, { qos: 1 });
             });
-            client.on('message', (topic, payload) => {
+            client.on('message', (t, p) => {
                 try {
-                    const d = JSON.parse(payload.toString());
-                    if (topic === HOF_TOPIC) { hallOfFame = Array.isArray(d) ? d : []; renderHoF(); return; }
+                    const d = JSON.parse(p.toString());
+                    if (t === HOF_TOPIC) { hallOfFame = Array.isArray(d) ? d : []; renderHoF(); return; }
                     if (!d.id || d.id === myId) return;
                     players[d.id] = { ...players[d.id], ...d };
                     if (d.finished && !winnerSet) checkWinner();
                 } catch (_) { }
             });
             client.on('offline', () => setDot(false));
-            client.on('error', () => setDot(false));
         }
-
         function pubMe(force = false) {
             if (!client || !client.connected) return;
-            if (!force && Date.now() - lastPub < 150) return;
+            if (!force && Date.now() - lastPub < 140) return;
             lastPub = Date.now();
-            client.publish(`${mqttBase(myRoom)}/runner/${myId}`, JSON.stringify({
-                id: myId, name: myName, char: myCharObj.e, color: myCharObj.c,
-                pos: myPos, yOff: myYOff, finished: myFinished, finishTime: myFinishTime
-            }), { qos: 0, retain: false });
+            client.publish(`${mqttBase(myRoom)}/runner/${myId}`, JSON.stringify({ id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos, yOff: myYOff, finished: myFinished, finishTime: myFinishTime }), { qos: 0, retain: false });
         }
-
         function setDot(on) {
             document.getElementById('dot').className = 'dot' + (on ? ' on' : '');
-            document.getElementById('connTxt').textContent = on ? 'Connected' : 'Reconnecting...';
+            document.getElementById('connTxt').textContent = on ? 'Connected — Ready to race!' : 'Reconnecting...';
         }
 
-        // ─────────────────────────────────────────
-        // GAME START / COUNTDOWN
-        // ─────────────────────────────────────────
+        // ── START GAME ────────────────────────────────────
         function show(id) {
             document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display = ''; });
-            const s = document.getElementById(id);
-            s.style.display = 'flex'; s.classList.add('active');
+            const s = document.getElementById(id); s.style.display = 'flex'; s.classList.add('active');
         }
-
         function startGame() {
             myName = document.getElementById('iName').value.trim() || 'Oracle';
             myRoom = (document.getElementById('iRoom').value.trim() || 'Oracle').replace(/\W/g, '');
-
-            // Subscribe to the room
             client.subscribe(`${mqttBase(myRoom)}/runner/+`, { qos: 0 });
-
-            players = {};
-            myPos = 0; myYOff = 0; myJumpV = 0;
-            myFinished = false; myFinishTime = null;
-            hitCD = 0; frameN = 0; winnerSet = false; elapsed = 0;
-            cdVal = 3; startTime = null;
-
-            show('S2');
-            loop();
-            pubMe(true);
-
-            // Countdown
+            players = {}; myPos = 0; myYOff = 0; myJumpV = 0;
+            myFinished = false; myFinishTime = null; hitCD = 0; frameN = 0; winnerSet = false; elapsed = 0;
+            combo = 0; comboFlash = 0; parts = []; shakeAmt = 0; cdVal = 3; startTime = null;
+            show('S2'); loop(); pubMe(true);
             gamePhase = 'countdown';
             const cd = setInterval(() => {
                 cdVal--;
-                if (cdVal < 0) {
-                    clearInterval(cd);
-                    gamePhase = 'running';
-                    startTime = Date.now();
-                }
+                if (cdVal < 0) { clearInterval(cd); gamePhase = 'running'; startTime = Date.now(); }
             }, 1000);
         }
 
-        // ─────────────────────────────────────────
-        // INPUT
-        // ─────────────────────────────────────────
+        // ── INPUT ────────────────────────────────────────
         document.addEventListener('keydown', e => {
             if (e.repeat) return;
             if (e.code === 'Space' || e.key === ' ') {
                 e.preventDefault();
                 if (gamePhase === 'running' && !myFinished) {
-                    myPos = Math.min(100, myPos + STEP);
-                    players[myId] = { id: myId, name: myName, char: myCharObj.e, color: myCharObj.c, pos: myPos };
+                    const now = Date.now();
+                    if (now - lastSpaceMs < COMBO_WIN) { combo = Math.min(15, combo + 1); comboFlash = 20; sndCombo(); }
+                    else { combo = 0; }
+                    lastSpaceMs = now;
+                    const bonus = combo >= 8 ? 1.2 : combo >= 5 ? 0.7 : combo >= 3 ? 0.35 : 0;
+                    myPos = Math.min(100, myPos + STEP + bonus);
+                    sndStep();
+                    addParts(PLAYER_X - 22, GROUND_Y + myYOff - 5, myCharObj.c, 3, 'spark');
                 }
                 if (gamePhase === 'setup') document.getElementById('btnStart').click();
             }
             if ((e.code === 'ShiftLeft' || e.code === 'ShiftRight') && gamePhase === 'running' && !myFinished) {
                 e.preventDefault();
-                if (myYOff === 0 && myJumpV === 0) { myJumpV = JUMP_POWER; } // only jump when on ground
+                if (myYOff === 0 && myJumpV === 0) { myJumpV = JUMP_POWER; sndJump(); addParts(PLAYER_X, GROUND_Y, myCharObj.c, 6, 'spark'); }
             }
             if (e.code === 'Enter' && gamePhase === 'setup') document.getElementById('btnStart').click();
         });
 
-        // ─────────────────────────────────────────
-        // BUTTON EVENTS
-        // ─────────────────────────────────────────
+        // ── SETUP CHAR GRID ──────────────────────────────
+        (function () {
+            const g = document.getElementById('charGrid');
+            CHARS.forEach((ch, i) => {
+                const b = document.createElement('button');
+                b.className = 'cbtn' + (i === 0 ? ' sel' : '');
+                b.innerHTML = `${ch.e}<span>${ch.n}</span>`;
+                b.onclick = () => {
+                    document.querySelectorAll('.cbtn').forEach(x => x.classList.remove('sel'));
+                    b.classList.add('sel'); myCharObj = ch;
+                };
+                g.appendChild(b);
+            });
+        })();
+
         document.getElementById('btnStart').addEventListener('click', startGame);
 
-        // ─────────────────────────────────────────
-        // INIT
-        // ─────────────────────────────────────────
+        // ── INIT ─────────────────────────────────────────
         initMQTT();
     </script>
 </body>

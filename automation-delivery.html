@@ -7,6 +7,8 @@
     <meta name="description"
         content="Automation Delivery — Smart Autonomous Mini-Vehicle for Fast and Convenient Parcel Delivery.">
     <title>Automation Delivery | AI-Driven Parcel Logistics</title>
+    <!-- Three.js for 3D Simulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
 
@@ -904,8 +906,21 @@
                     </div>
                 </div>
 
-                <div class="map-wrapper reveal" style="margin-top: 5rem;">
-                    <div class="map-overlay"></div>
+                <div class="map-wrapper reveal" id="map-3d-container"
+                    style="margin-top: 5rem; position: relative; height: 500px; background: #030712; border: 1px solid var(--border); border-radius: 24px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+                    <canvas id="sim3d-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
+
+                    <div class="status-toast"
+                        style="pointer-events: none; position: absolute; bottom: 24px; right: 24px;">
+                        <div class="status-header">
+                            <div class="status-pulse"></div>
+                            <span id="sim-status">กำลังเริ่มต้นระบบ...</span>
+                        </div>
+                        <div class="status-coords" id="sim-action">Initializing AI Pathfinding...</div>
+                    </div>
+                </div>
+                <!-- Old Map Content Removed -->
+                <div style="display:none;">
                     <!-- Path Visualization -->
                     <svg class="map-svg-path" viewBox="0 0 800 500">
                         <path d="M100,100 L250,100 L250,250 L450,250 L450,380 L650,380" fill="none"
@@ -1206,6 +1221,297 @@
 
         revealElements.forEach(el => {
             revealOnScroll.observe(el);
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const canvas = document.getElementById('sim3d-canvas');
+            if (!canvas) return;
+
+            // Scene setup
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x030712);
+            scene.fog = new THREE.FogExp2(0x030712, 0.02);
+
+            // Camera
+            const camera = new THREE.PerspectiveCamera(60, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+            camera.position.set(0, 15, 20);
+            camera.lookAt(0, 0, 0);
+
+            // Renderer
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+            renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(15, 25, 15);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 1024;
+            dirLight.shadow.mapSize.height = 1024;
+            dirLight.shadow.camera.left = -20;
+            dirLight.shadow.camera.right = 20;
+            dirLight.shadow.camera.top = 20;
+            dirLight.shadow.camera.bottom = -20;
+            scene.add(dirLight);
+
+            const pointLight = new THREE.PointLight(0x3b82f6, 1.5, 30);
+            pointLight.position.set(0, 5, 0);
+            scene.add(pointLight);
+
+            // Grid Floor
+            const gridHelper = new THREE.GridHelper(60, 60, 0x3b82f6, 0x111827);
+            gridHelper.position.y = 0.01;
+            scene.add(gridHelper);
+
+            const floorGeo = new THREE.PlaneGeometry(60, 60);
+            const floorMat = new THREE.MeshStandardMaterial({ color: 0x0a0f1c, roughness: 0.8 });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // --- CAR (LAFVIN Uno R3 + ESP32) ---
+            const carGroup = new THREE.Group();
+            scene.add(carGroup);
+
+            // Chassis Main Body
+            const chassisGeo = new THREE.BoxGeometry(2.2, 1.2, 3.8);
+            const chassisMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, metalness: 0.3, roughness: 0.4 });
+            const chassis = new THREE.Mesh(chassisGeo, chassisMat);
+            chassis.position.y = 1.2;
+            chassis.castShadow = true;
+            carGroup.add(chassis);
+
+            const upperChassisGeo = new THREE.BoxGeometry(1.8, 0.8, 2.5);
+            const upperChassisMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, metalness: 0.2, roughness: 0.5 });
+            const upperChassis = new THREE.Mesh(upperChassisGeo, upperChassisMat);
+            upperChassis.position.set(0, 2.2, -0.2);
+            upperChassis.castShadow = true;
+            carGroup.add(upperChassis);
+
+            // ESP32 / Sensor unit on top
+            const sensorGeo = new THREE.BoxGeometry(0.8, 0.4, 0.8);
+            const sensorMat = new THREE.MeshStandardMaterial({ color: 0x10b981, emissive: 0x10b981, emissiveIntensity: 0.3 });
+            const sensor = new THREE.Mesh(sensorGeo, sensorMat);
+            sensor.position.set(0, 2.8, 0.5);
+            carGroup.add(sensor);
+
+            // Wheels
+            const wheelGeo = new THREE.CylinderGeometry(0.7, 0.7, 0.5, 24);
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.9 });
+            const wheelPositions = [
+                [-1.3, 0.7, 1.4], [1.3, 0.7, 1.4],
+                [-1.3, 0.7, -1.4], [1.3, 0.7, -1.4]
+            ];
+
+            const wheels = [];
+            wheelPositions.forEach(pos => {
+                const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+                wheel.rotation.z = Math.PI / 2;
+                wheel.position.set(...pos);
+                wheel.castShadow = true;
+                carGroup.add(wheel);
+                wheels.push(wheel);
+            });
+
+            // Headlights
+            const lightGeo = new THREE.BoxGeometry(0.4, 0.4, 0.1);
+            const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff, emissiveIntensity: 1 });
+            const lightL = new THREE.Mesh(lightGeo, lightMat);
+            lightL.position.set(-0.7, 1.4, 1.95);
+            carGroup.add(lightL);
+            const lightR = new THREE.Mesh(lightGeo, lightMat);
+            lightR.position.set(0.7, 1.4, 1.95);
+            carGroup.add(lightR);
+
+            // SpotLights for Headlights
+            const spotLight = new THREE.SpotLight(0xffffff, 1.5, 20, Math.PI / 4, 0.5, 1);
+            spotLight.position.set(0, 1.4, 2);
+            spotLight.target.position.set(0, 0, 10);
+            carGroup.add(spotLight);
+            carGroup.add(spotLight.target);
+
+            // --- OBSTACLES & PARCELS ---
+            const obstacles = [];
+            const parcels = [];
+
+            function createObstacle(x, z) {
+                const obsGeo = new THREE.BoxGeometry(2, 2.5, 2);
+                const obsMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.6 });
+                const obs = new THREE.Mesh(obsGeo, obsMat);
+                obs.position.set(x, 1.25, z);
+                obs.castShadow = true;
+                obs.receiveShadow = true;
+                scene.add(obs);
+                obstacles.push(obs);
+            }
+
+            function createParcel(x, z, labelColor) {
+                const parcelGroup = new THREE.Group();
+                parcelGroup.position.set(x, 1.0, z);
+
+                const boxGeo = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+                const boxMat = new THREE.MeshStandardMaterial({ color: labelColor, roughness: 0.5 });
+                const box = new THREE.Mesh(boxGeo, boxMat);
+                box.castShadow = true;
+
+                // Hologram indicator
+                const ringGeo = new THREE.TorusGeometry(1.2, 0.05, 16, 32);
+                const ringMat = new THREE.MeshBasicMaterial({ color: labelColor, transparent: true, opacity: 0.8 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2;
+                ring.position.y = -0.5;
+
+                parcelGroup.add(box);
+                parcelGroup.add(ring);
+                scene.add(parcelGroup);
+
+                parcels.push({ mesh: parcelGroup, ring: ring, collected: false, color: labelColor });
+            }
+
+            // Populate Map
+            createObstacle(-6, 8);
+            createObstacle(5, 5);
+            createObstacle(-3, -7);
+            createObstacle(8, -2);
+            createObstacle(-10, -3);
+
+            createParcel(-12, 10, 0xf59e0b); // Orange
+            createParcel(12, 8, 0x8b5cf6);  // Purple
+            createParcel(-8, -12, 0xec4899); // Pink
+            createParcel(10, -10, 0x06b6d4); // Cyan
+
+            // --- AI LOGIC variables ---
+            let currentTarget = null;
+            const statusEl = document.getElementById('sim-status');
+            const actionEl = document.getElementById('sim-action');
+
+            const maxSpeed = 0.12;
+            let currentSpeed = 0;
+            const turnSpeed = 0.06;
+
+            function findNextParcel() {
+                let closest = null;
+                let minDist = Infinity;
+
+                parcels.forEach(p => {
+                    if (!p.collected) {
+                        const dist = carGroup.position.distanceTo(p.mesh.position);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            closest = p;
+                        }
+                    }
+                });
+
+                return closest;
+            }
+
+            // --- RENDER LOOP ---
+            const clock = new THREE.Clock();
+
+            // Setup proper raycaster for obstacle avoidance
+            const raycaster = new THREE.Raycaster();
+            raycaster.far = 6.0;
+
+            function animate() {
+                requestAnimationFrame(animate);
+
+                const time = clock.getElapsedTime();
+                pointLight.intensity = 1.5 + Math.sin(time * 3) * 0.3;
+                sensor.material.emissiveIntensity = 0.4 + Math.sin(time * 10) * 0.4;
+
+                // Animate parcels
+                parcels.forEach(p => {
+                    if (!p.collected) {
+                        p.mesh.position.y = 1.0 + Math.sin(time * 2 + p.mesh.position.x) * 0.3;
+                        p.mesh.rotation.y += 0.01;
+                        p.ring.rotation.z -= 0.03;
+                        p.ring.scale.setScalar(1 + Math.sin(time * 5) * 0.15);
+                    }
+                });
+
+                // --- AI NAVIGATION & AVOIDANCE Pysics ---
+                if (!currentTarget || currentTarget.collected) {
+                    currentTarget = findNextParcel();
+                    if (currentTarget) {
+                        statusEl.innerText = "กำลังจัดส่งพัสดุ...";
+                        statusEl.style.color = "#3b82f6";
+                    } else {
+                        statusEl.innerText = "ภารกิจเสร็จสิ้น (Mission Complete)";
+                        statusEl.style.color = "#10b981";
+                        actionEl.innerText = "กลับสู่จุดพัก...";
+
+                        // Circle around center if finished
+                        carGroup.rotation.y += 0.01;
+                        currentSpeed = currentSpeed * 0.95;
+                        carGroup.translateZ(currentSpeed);
+                    }
+                }
+
+                if (currentTarget && !currentTarget.collected) {
+                    const distToTarget = carGroup.position.distanceTo(currentTarget.mesh.position);
+
+                    if (distToTarget < 1.5) {
+                        currentTarget.collected = true;
+                        currentTarget.mesh.visible = false;
+                        actionEl.innerText = "รับพัสดุสำเร็จ!";
+                        setTimeout(() => {
+                            if (currentTarget && currentTarget.collected) {
+                                actionEl.innerText = "กำลังค้นหาเป้าหมายถัดไป...";
+                            }
+                        }, 2000);
+                        return;
+                    }
+
+                    // Steer towards target
+                    const targetPos = currentTarget.mesh.position.clone();
+                    const localTarget = carGroup.worldToLocal(targetPos);
+                    const angle = Math.atan2(localTarget.x, localTarget.z);
+
+                    // Obstacle check
+                    let obstacleInWay = false;
+                    const rayDir = new THREE.Vector3(0, 0, 1).applyQuaternion(carGroup.quaternion);
+                    raycaster.set(carGroup.position, rayDir);
+                    const coreIntersect = raycaster.intersectObjects(obstacles);
+
+                    if (coreIntersect.length > 0 && coreIntersect[0].distance < 4) {
+                        obstacleInWay = true;
+                        actionEl.innerText = "ตรวจพบสิ่งกีดขวาง! กำลังหลบหลีก...";
+                    }
+
+                    if (obstacleInWay) {
+                        carGroup.rotation.y += 0.1; // Panic turn
+                        currentSpeed *= 0.8;
+                    } else {
+                        // Smooth steering
+                        carGroup.rotation.y += angle * 0.1;
+                        currentSpeed = Math.min(maxSpeed, currentSpeed + 0.005);
+                        actionEl.innerText = `พิกัดเป้าหมาย: ${currentTarget.mesh.position.x.toFixed(1)}, ${currentTarget.mesh.position.z.toFixed(1)}`;
+                    }
+
+                    carGroup.translateZ(currentSpeed);
+                }
+
+                renderer.render(scene, camera);
+            }
+
+            animate();
+
+            // Resize handle
+            window.addEventListener('resize', () => {
+                const w = canvas.clientWidth;
+                const h = canvas.clientHeight;
+                camera.aspect = w / h;
+                camera.updateProjectionMatrix();
+                renderer.setSize(w, h);
+            });
         });
     </script>
 </body>

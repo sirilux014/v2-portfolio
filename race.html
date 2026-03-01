@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle Sprint 🌊 — Real-time Racing</title>
+    <meta name="description" content="Real-time Oracle racing game. Press SPACE to run!">
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #07090f;
+            --surface: #0f1520;
+            --surface2: #161d2e;
+            --border: rgba(255, 255, 255, 0.08);
+            --cyan: #00e5ff;
+            --green: #10b981;
+            --yellow: #fbbf24;
+            --red: #f43f5e;
+            --purple: #a855f7;
+            --text: #f1f5f9;
+            --muted: #64748b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── SCREENS ─────────────────────────── */
+        .screen {
+            display: none;
+            min-height: 100vh;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ── SETUP SCREEN ────────────────────── */
+        #setup-screen {
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(ellipse at 50% 0%, rgba(0, 229, 255, 0.08) 0%, transparent 70%), var(--bg);
+            padding: 2rem;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-emoji {
+            font-size: 4rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -1px;
+        }
+
+        .logo p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            margin-top: 0.5rem;
+        }
+
+        .setup-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--muted);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: var(--text);
+            font-size: 1rem;
+            font-family: inherit;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--cyan);
+        }
+
+        .form-input::placeholder {
+            color: var(--muted);
+        }
+
+        .char-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .char-btn {
+            background: var(--surface2);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .char-btn span {
+            font-size: 0.6rem;
+            color: var(--muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .char-btn:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .char-btn.selected {
+            border-color: var(--cyan);
+            background: rgba(0, 229, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 229, 255, 0.2);
+        }
+
+        .start-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 1rem;
+        }
+
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 229, 255, 0.4);
+        }
+
+        .start-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ── RACE SCREEN ─────────────────────── */
+        #race-screen {
+            padding: 1rem;
+        }
+
+        .race-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 20px;
+        }
+
+        .race-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .race-timer {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--yellow);
+        }
+
+        .race-status {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        /* Track */
+        .track-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .runner-lane {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 16px;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.3s;
+        }
+
+        .runner-lane.me {
+            border-color: rgba(0, 229, 255, 0.4);
+        }
+
+        .runner-lane.finished {
+            border-color: var(--green);
+        }
+
+        .runner-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .runner-char {
+            font-size: 1.5rem;
+        }
+
+        .runner-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .runner-name .you-tag {
+            font-size: 0.65rem;
+            background: var(--cyan);
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            margin-left: 6px;
+            font-weight: 700;
+        }
+
+        .runner-pct {
+            margin-left: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        .runner-medal {
+            font-size: 1rem;
+            margin-left: 4px;
+        }
+
+        .track-bar-bg {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .track-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.2s ease;
+            background: linear-gradient(90deg, rgba(0, 229, 255, 0.6), var(--cyan));
+        }
+
+        /* Start/Finish flags */
+        .track-flags {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2rem;
+            opacity: 0.4;
+        }
+
+        /* Spacebar hint */
+        .space-hint {
+            text-align: center;
+            padding: 2rem;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .space-key {
+            display: inline-block;
+            background: var(--surface2);
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-bottom: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 8px 40px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            transition: all 0.1s;
+            color: var(--text);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .space-key.pressed {
+            transform: translateY(2px);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 229, 255, 0.15);
+            border-color: var(--cyan);
+        }
+
+        .space-hint p {
+            font-size: 0.85rem;
+            color: var(--muted);
+        }
+
+        /* Tap area for mobile */
+        .tap-zone {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45%;
+            z-index: 10;
+            display: none;
+        }
+
+        /* ── FINISH SCREEN ───────────────────── */
+        #finish-screen {
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            background: radial-gradient(ellipse at 50% 30%, rgba(251, 191, 36, 0.1) 0%, transparent 60%), var(--bg);
+        }
+
+        .winner-card {
+            text-align: center;
+            background: var(--surface);
+            border: 1px solid rgba(251, 191, 36, 0.3);
+            border-radius: 20px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 0 60px rgba(251, 191, 36, 0.1);
+            margin-bottom: 1.5rem;
+        }
+
+        .winner-trophy {
+            font-size: 5rem;
+            display: block;
+            margin-bottom: 1rem;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: scale(1) rotate(-5deg);
+            }
+
+            50% {
+                transform: scale(1.1) rotate(5deg);
+            }
+        }
+
+        .winner-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--yellow);
+            margin-bottom: 0.5rem;
+        }
+
+        .winner-name {
+            font-size: 2.5rem;
+            font-weight: 800;
+        }
+
+        .winner-char {
+            font-size: 2rem;
+        }
+
+        .winner-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            color: var(--green);
+            margin: 0.5rem 0;
+        }
+
+        .results-list {
+            width: 100%;
+            max-width: 500px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-list h3 {
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .result-row:last-child {
+            border-bottom: none;
+        }
+
+        .result-pos {
+            font-size: 1.2rem;
+            width: 30px;
+        }
+
+        .result-char {
+            font-size: 1.3rem;
+        }
+
+        .result-name {
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .result-time {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--green);
+        }
+
+        .result-dns {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .race-again-btn {
+            padding: 14px 40px;
+            background: var(--cyan);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .race-again-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0, 229, 255, 0.4);
+        }
+
+        /* ── HALL OF FAME ────────────────────── */
+        .hof-panel {
+            width: 100%;
+            max-width: 500px;
+            background: var(--surface);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .hof-panel h3 {
+            padding: 12px 20px;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--purple);
+            border-bottom: 1px solid var(--border);
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        .hof-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .hof-row:last-child {
+            border-bottom: none;
+        }
+
+        .hof-rank {
+            font-size: 0.9rem;
+            width: 24px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .hof-rank.gold {
+            color: #fbbf24;
+        }
+
+        .hof-rank.silver {
+            color: #94a3b8;
+        }
+
+        .hof-rank.bronze {
+            color: #cd7f32;
+        }
+
+        .hof-char {
+            font-size: 1.2rem;
+        }
+
+        .hof-name {
+            flex: 1;
+            font-weight: 600;
+        }
+
+        .hof-time {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--green);
+            font-size: 0.85rem;
+        }
+
+        .hof-date {
+            color: var(--muted);
+            font-size: 0.75rem;
+            margin-left: 4px;
+        }
+
+        .hof-empty {
+            padding: 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.875rem;
+        }
+
+        /* ── CONNECTION DOT ──────────────────── */
+        .conn-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            margin-right: 6px;
+            box-shadow: 0 0 8px var(--red);
+            transition: all 0.3s;
+        }
+
+        .conn-dot.online {
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+        }
+
+        /* ── BACK LINK ───────────────────────── */
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: var(--muted);
+            font-size: 0.8rem;
+            padding: 8px 0;
+            margin-bottom: 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: var(--text);
+        }
+
+        /* ── RESPONSIVE ──────────────────────── */
+        @media (max-width: 480px) {
+            .tap-zone {
+                display: block;
+            }
+
+            .char-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ══════ SETUP SCREEN ══════ -->
+    <div id="setup-screen" class="screen active">
+        <div class="setup-card">
+            <a href="index.html" class="back-link">← Back to Portfolio</a>
+            <div class="logo">
+                <span class="logo-emoji">🏁</span>
+                <h1>Oracle Sprint</h1>
+                <p>Press <kbd>SPACE</kbd> to run · Real-time Multiplayer</p>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Oracle Name</label>
+                <input type="text" id="player-name" class="form-input" placeholder="e.g. Smile Oracle" maxlength="20"
+                    autocomplete="off">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Choose Your Oracle Character</label>
+                <div class="char-grid" id="char-grid"></div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Room Code (share with friends)</label>
+                <input type="text" id="room-code" class="form-input" value="Oracle" maxlength="20" autocomplete="off">
+            </div>
+
+            <div
+                style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;font-size:0.8rem;color:var(--muted)">
+                <span class="conn-dot" id="conn-dot"></span>
+                <span id="conn-text">Connecting to MQTT...</span>
+            </div>
+
+            <button id="start-btn" class="start-btn" disabled>🚀 JOIN RACE</button>
+        </div>
+    </div>
+
+    <!-- ══════ RACE SCREEN ══════ -->
+    <div id="race-screen" class="screen">
+        <div style="max-width:800px;margin:0 auto;width:100%;padding:0 0.5rem">
+            <div class="race-header">
+                <div>
+                    <div class="race-title">🏁 Oracle Sprint</div>
+                    <div class="race-status" id="race-room-label">Room: Oracle</div>
+                </div>
+                <div class="race-timer" id="race-timer">00.00</div>
+                <div style="text-align:right;font-size:0.8rem;color:var(--muted)">
+                    <span class="conn-dot online" id="race-conn-dot"></span>
+                    <span id="runner-count">0 runners</span>
+                </div>
+            </div>
+
+            <div class="track-container" id="track-container">
+                <!-- Runners rendered here -->
+            </div>
+
+            <div class="space-hint">
+                <div class="space-key" id="space-visual">SPACE</div>
+                <p id="press-hint">Press <strong>Spacebar</strong> (or tap below) to run!</p>
+            </div>
+        </div>
+
+        <!-- Mobile tap zone -->
+        <div class="tap-zone" id="tap-zone"></div>
+    </div>
+
+    <!-- ══════ FINISH SCREEN ══════ -->
+    <div id="finish-screen" class="screen">
+        <div class="winner-card">
+            <span class="winner-trophy">🏆</span>
+            <div class="winner-title">Winner!</div>
+            <div class="winner-char" id="winner-char">🌊</div>
+            <div class="winner-name" id="winner-name">Oracle</div>
+            <div class="winner-time" id="winner-time">0.00s</div>
+        </div>
+
+        <div class="results-list" id="results-list">
+            <h3>🏎 Race Results</h3>
+            <!-- results injected -->
+        </div>
+
+        <div class="hof-panel" id="hof-panel">
+            <h3>⭐ Hall of Fame — All Time</h3>
+            <div id="hof-list">
+                <div class="hof-empty">Loading...</div>
+            </div>
+        </div>
+
+        <div style="margin-top:1.5rem;display:flex;gap:1rem;flex-wrap:wrap;justify-content:center">
+            <button class="race-again-btn" onclick="restartRace()">🔁 Race Again</button>
+            <a href="index.html"
+                style="padding:14px 24px;border:1px solid var(--border);border-radius:12px;color:var(--muted);text-decoration:none;font-size:0.9rem;display:inline-flex;align-items:center">←
+                Portfolio</a>
+        </div>
+    </div>
+
+    <script>
+        // ═══════════════════════════════════════════════════
+        // CONFIG
+        // ═══════════════════════════════════════════════════
+        const BROKER = 'wss://dustboy-wss-bridge.laris.workers.dev/mqtt';
+        const HOF_TOPIC = 'OracleRace/v1/hof';
+        const FINISH_LINE = 100;
+        const STEP = 1.8;
+        const CHARS = [
+            { e: '🌊', n: 'Water', c: '#00e5ff' },
+            { e: '🔥', n: 'Fire', c: '#f97316' },
+            { e: '⚡', n: 'Lightning', c: '#fbbf24' },
+            { e: '🌿', n: 'Nature', c: '#10b981' },
+            { e: '🌙', n: 'Moon', c: '#a855f7' },
+            { e: '⭐', n: 'Star', c: '#f59e0b' },
+            { e: '🐉', n: 'Dragon', c: '#ef4444' },
+            { e: '🦋', n: 'Spirit', c: '#ec4899' },
+        ];
+
+        // ═══════════════════════════════════════════════════
+        // STATE
+        // ═══════════════════════════════════════════════════
+        const myId = 'player_' + Math.random().toString(36).substr(2, 8);
+        let myName = '', myChar = null, myRoom = 'Oracle';
+        let client = null;
+        let position = 0, startTime = null, finished = false;
+        let players = {}; // id → {name, char, color, pos, finished, finishTime}
+        let hallOfFame = [];
+        let timerInterval = null;
+        let lastPublish = 0;
+        let pendingKeyHeld = false;
+
+        // ═══════════════════════════════════════════════════
+        // UI HELPERS
+        // ═══════════════════════════════════════════════════
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        // ═══════════════════════════════════════════════════
+        // CHARACTER PICKER
+        // ═══════════════════════════════════════════════════
+        (function buildCharGrid() {
+            const grid = document.getElementById('char-grid');
+            CHARS.forEach((ch, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'char-btn';
+                btn.innerHTML = `${ch.e}<span>${ch.n}</span>`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.char-btn').forEach(b => b.classList.remove('selected'));
+                    btn.classList.add('selected');
+                    myChar = ch;
+                };
+                if (i === 0) { btn.click(); } // default
+                grid.appendChild(btn);
+            });
+        })();
+
+        // ═══════════════════════════════════════════════════
+        // MQTT
+        // ═══════════════════════════════════════════════════
+        function mqttTopic(room) {
+            return `OracleRace/v1/${room}/runner`;
+        }
+
+        function connectMQTT() {
+            client = mqtt.connect(BROKER, { reconnectPeriod: 3000 });
+
+            client.on('connect', () => {
+                setConn(true);
+                // Subscribe to Hall of Fame (retained)
+                client.subscribe(HOF_TOPIC, { qos: 1 });
+                document.getElementById('start-btn').disabled = false;
+            });
+
+            client.on('message', (topic, payload) => {
+                try {
+                    const data = JSON.parse(payload.toString());
+                    if (topic === HOF_TOPIC) {
+                        hallOfFame = Array.isArray(data) ? data : [];
+                        renderHoF();
+                        return;
+                    }
+                    // Runner update from the race room
+                    if (!data.id) return;
+                    if (data.id === myId) return; // skip self
+
+                    const existing = players[data.id] || {};
+                    players[data.id] = { ...existing, ...data };
+                    renderTrack();
+                    checkWinner();
+                } catch (_) { }
+            });
+
+            client.on('offline', () => setConn(false));
+            client.on('error', () => setConn(false));
+        }
+
+        function setConn(online) {
+            const dots = document.querySelectorAll('.conn-dot');
+            const texts = document.querySelectorAll('#conn-text');
+            dots.forEach(d => { d.className = 'conn-dot' + (online ? ' online' : ''); });
+            texts.forEach(t => { if (t) t.textContent = online ? 'Connected' : 'Reconnecting...'; });
+        }
+
+        function publishPosition(force = false) {
+            if (!client || !client.connected) return;
+            const now = Date.now();
+            if (!force && now - lastPublish < 150) return;
+            lastPublish = now;
+
+            const payload = JSON.stringify({
+                id: myId,
+                name: myName,
+                char: myChar.e,
+                color: myChar.c,
+                pos: position,
+                finished: finished,
+                finishTime: finished ? ((Date.now() - startTime) / 1000).toFixed(2) : null
+            });
+
+            client.publish(mqttTopic(myRoom) + '/' + myId, payload, { qos: 0, retain: false });
+        }
+
+        function joinRoomTopics() {
+            client.subscribe(mqttTopic(myRoom) + '/+', { qos: 0 });
+        }
+
+        // ═══════════════════════════════════════════════════
+        // GAME LOGIC
+        // ═══════════════════════════════════════════════════
+        function startGame() {
+            myName = document.getElementById('player-name').value.trim() || 'Oracle';
+            myRoom = (document.getElementById('room-code').value.trim() || 'Oracle').replace(/[^a-zA-Z0-9]/g, '');
+
+            // Init my player
+            players[myId] = { id: myId, name: myName, char: myChar.e, color: myChar.c, pos: 0, finished: false, finishTime: null };
+
+            joinRoomTopics();
+
+            showScreen('race-screen');
+            document.getElementById('race-room-label').textContent = `Room: ${myRoom}`;
+
+            position = 0;
+            finished = false;
+            startTime = Date.now();
+
+            startTimer();
+            renderTrack();
+            publishPosition(true);
+        }
+
+        function pressSpace() {
+            if (finished) return;
+            position = Math.min(FINISH_LINE, position + STEP);
+            players[myId].pos = position;
+
+            // Visual feedback
+            const key = document.getElementById('space-visual');
+            key.classList.add('pressed');
+            setTimeout(() => key.classList.remove('pressed'), 80);
+
+            renderTrack();
+            publishPosition();
+
+            if (position >= FINISH_LINE && !finished) {
+                finished = true;
+                players[myId].finished = true;
+                players[myId].finishTime = ((Date.now() - startTime) / 1000).toFixed(2);
+                publishPosition(true);
+                checkWinner();
+            }
+        }
+
+        let winnerDeclared = false;
+
+        function checkWinner() {
+            if (winnerDeclared) return;
+
+            const allFinished = Object.values(players).filter(p => p.finished);
+            if (allFinished.length === 0) return;
+
+            // Sort by finishTime
+            allFinished.sort((a, b) => parseFloat(a.finishTime) - parseFloat(b.finishTime));
+
+            // Only declare winner if MY player has finished OR a remote player finished and enough time has passed
+            const anyFinished = allFinished.length > 0;
+            if (!anyFinished) return;
+
+            // Check if I finished or someone else has
+            const iFinished = players[myId]?.finished;
+            const othersFinished = allFinished.some(p => p.id !== myId);
+
+            // Show winner if I finished, or someone else finished 2s ago
+            if (!iFinished && !othersFinished) return;
+
+            winnerDeclared = true;
+            stopTimer();
+            showWinner(allFinished[0], allFinished);
+        }
+
+        function showWinner(winner, allFinished) {
+            const allPlayers = Object.values(players);
+            const notFinished = allPlayers.filter(p => !p.finished);
+
+            document.getElementById('winner-char').textContent = winner.char;
+            document.getElementById('winner-name').textContent = winner.name;
+            document.getElementById('winner-time').textContent = winner.finishTime + 's';
+
+            // Results table
+            const medals = ['🥇', '🥈', '🥉'];
+            const allByFinish = allFinished.concat(notFinished.map(p => ({ ...p, finishTime: null })));
+
+            const list = document.getElementById('results-list');
+            list.innerHTML = '<h3>🏎 Race Results</h3>';
+            allByFinish.forEach((p, i) => {
+                const row = document.createElement('div');
+                row.className = 'result-row';
+                row.innerHTML = `
+            <div class="result-pos">${medals[i] || '#' + (i + 1)}</div>
+            <div class="result-char">${p.char}</div>
+            <div class="result-name">${p.name}${p.id === myId ? ' <span style="font-size:0.65rem;background:var(--cyan);color:#000;padding:2px 6px;border-radius:4px;font-weight:700">YOU</span>' : ''}</div>
+            ${p.finishTime ? `<div class="result-time">${p.finishTime}s</div>` : '<div class="result-dns">DNS</div>'}
+        `;
+                list.appendChild(row);
+            });
+
+            // Update Hall of Fame if winner
+            if (players[myId]?.finished) {
+                updateHallOfFame(players[myId]);
+            }
+
+            renderHoF();
+            showScreen('finish-screen');
+        }
+
+        // ═══════════════════════════════════════════════════
+        // HALL OF FAME
+        // ═══════════════════════════════════════════════════
+        function updateHallOfFame(myPlayer) {
+            const entry = {
+                name: myPlayer.name,
+                char: myPlayer.char,
+                time: parseFloat(myPlayer.finishTime),
+                date: new Date().toLocaleDateString('th-TH')
+            };
+
+            hallOfFame.push(entry);
+            hallOfFame.sort((a, b) => a.time - b.time);
+            hallOfFame = hallOfFame.slice(0, 10); // keep top 10
+
+            // Publish as retained message
+            if (client && client.connected) {
+                client.publish(HOF_TOPIC, JSON.stringify(hallOfFame), { qos: 1, retain: true });
+            }
+        }
+
+        function renderHoF() {
+            const container = document.getElementById('hof-list');
+            if (!container) return;
+
+            if (!hallOfFame.length) {
+                container.innerHTML = '<div class="hof-empty">No records yet. Be the first! 🌊</div>';
+                return;
+            }
+
+            const rankClass = (i) => i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+            const rankSymbol = (i) => ['🥇', '🥈', '🥉'][i] || `#${i + 1}`;
+
+            container.innerHTML = hallOfFame.map((entry, i) => `
+        <div class="hof-row">
+            <div class="hof-rank ${rankClass(i)}">${rankSymbol(i)}</div>
+            <div class="hof-char">${entry.char}</div>
+            <div class="hof-name">${entry.name}</div>
+            <div class="hof-time">${entry.time.toFixed(2)}s</div>
+            <div class="hof-date">${entry.date}</div>
+        </div>
+    `).join('');
+        }
+
+        // ═══════════════════════════════════════════════════
+        // RENDER TRACK
+        // ═══════════════════════════════════════════════════
+        function renderTrack() {
+            const container = document.getElementById('track-container');
+            const sortedPlayers = Object.values(players).sort((a, b) => {
+                if (a.id === myId) return -1;
+                if (b.id === myId) return 1;
+                return b.pos - a.pos;
+            });
+
+            document.getElementById('runner-count').textContent = sortedPlayers.length + ' runner' + (sortedPlayers.length !== 1 ? 's' : '');
+
+            container.innerHTML = sortedPlayers.map(p => {
+                const pct = Math.min(100, p.pos || 0).toFixed(1);
+                const isMe = p.id === myId;
+                const isFinished = p.finished;
+                const medal = (() => {
+                    if (!isFinished) return '';
+                    const finishedPlayers = Object.values(players).filter(x => x.finished)
+                        .sort((a, b) => parseFloat(a.finishTime) - parseFloat(b.finishTime));
+                    const rank = finishedPlayers.findIndex(x => x.id === p.id);
+                    return ['🥇', '🥈', '🥉'][rank] || '🏅';
+                })();
+
+                const barColor = p.color || '#00e5ff';
+
+                return `<div class="runner-lane ${isMe ? 'me' : ''} ${isFinished ? 'finished' : ''}">
+            <div class="runner-info">
+                <span class="runner-char">${p.char}</span>
+                <span class="runner-name">${p.name}${isMe ? '<span class="you-tag">YOU</span>' : ''}</span>
+                <span class="runner-medal">${medal}</span>
+                <span class="runner-pct">${pct}%</span>
+            </div>
+            <div class="track-bar-bg">
+                <div class="track-bar-fill" style="width:${pct}%;background:linear-gradient(90deg, ${barColor}88, ${barColor})"></div>
+            </div>
+        </div>`;
+            }).join('');
+        }
+
+        // ═══════════════════════════════════════════════════
+        // TIMER
+        // ═══════════════════════════════════════════════════
+        function startTimer() {
+            stopTimer();
+            timerInterval = setInterval(() => {
+                if (!startTime) return;
+                const elapsed = (Date.now() - startTime) / 1000;
+                document.getElementById('race-timer').textContent = elapsed.toFixed(2);
+            }, 50);
+        }
+
+        function stopTimer() {
+            if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+        }
+
+        // ═══════════════════════════════════════════════════
+        // RESTART
+        // ═══════════════════════════════════════════════════
+        function restartRace() {
+            // Unsubscribe old room
+            if (client && client.connected) {
+                client.unsubscribe(mqttTopic(myRoom) + '/+');
+            }
+
+            winnerDeclared = false;
+            players = {};
+            position = 0;
+            finished = false;
+
+            showScreen('setup-screen');
+        }
+
+        // ═══════════════════════════════════════════════════
+        // EVENTS
+        // ═══════════════════════════════════════════════════
+        document.getElementById('start-btn').addEventListener('click', () => {
+            startGame();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === ' ') {
+                e.preventDefault();
+                if (document.getElementById('race-screen').classList.contains('active')) {
+                    pressSpace();
+                }
+            }
+            if (e.code === 'Enter' && document.getElementById('setup-screen').classList.contains('active')) {
+                document.getElementById('start-btn').click();
+            }
+        });
+
+        document.getElementById('tap-zone').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            pressSpace();
+        }, { passive: false });
+
+        document.getElementById('tap-zone').addEventListener('click', () => {
+            pressSpace();
+        });
+
+        // Space visual click
+        document.getElementById('space-visual').addEventListener('mousedown', () => pressSpace());
+
+        // ═══════════════════════════════════════════════════
+        // INIT
+        // ═══════════════════════════════════════════════════
+        connectMQTT();
+    </script>
+</body>
+
+</html>

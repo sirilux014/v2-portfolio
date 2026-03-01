@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Automation Delivery — Smart Autonomous Mini-Vehicle for Fast and Convenient Parcel Delivery.">
+    <title>Automation Delivery | AI-Driven Parcel Logistics</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Thai:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            /* Deep Blue */
+            --primary-glow: #3b82f6;
+            /* Bright Blue */
+            --accent: #10b981;
+            /* Emerald Green for AI/Tech */
+            --bg: #030712;
+            /* Very Dark Blue/Black */
+            --surface: #111827;
+            /* Dark Gray/Blue */
+            --surface-glass: rgba(17, 24, 39, 0.7);
+            --border: rgba(59, 130, 246, 0.2);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Noto Sans Thai', 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ── Grid Pattern Background ── */
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        }
+
+        /* ── Navbar (SPA Navigation) ── */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: var(--surface-glass);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            z-index: 100;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo span {
+            color: var(--primary-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--primary-glow);
+        }
+
+        /* ── Sections Common ── */
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+        }
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            text-align: center;
+            background: linear-gradient(135deg, #fff, var(--muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--primary-glow);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.85rem;
+            margin-bottom: 3rem;
+        }
+
+        /* ── Hero Section ── */
+        #home {
+            flex-direction: column;
+            text-align: center;
+            padding-top: 8rem;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--accent);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+            animation: pulse-border 2s infinite;
+        }
+
+        @keyframes pulse-border {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .hero-title {
+            font-size: clamp(3rem, 6vw, 5.5rem);
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, var(--primary-glow) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: clamp(1.1rem, 2vw, 1.25rem);
+            color: var(--muted);
+            max-width: 700px;
+            margin: 0 auto 3rem;
+            line-height: 1.7;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-glow);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.6);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-glow);
+            background: rgba(59, 130, 246, 0.05);
+            transform: translateY(-2px);
+        }
+
+        /* ── About Section ── */
+        .about-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .about-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .about-text h3 {
+            font-size: 1.75rem;
+            margin-bottom: 1rem;
+            color: var(--text);
+        }
+
+        .about-text p {
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 1.25rem;
+        }
+
+        .feature-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--primary-glow);
+            border-radius: 10px;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .feature-content h4 {
+            font-size: 1.1rem;
+            margin-bottom: 4px;
+        }
+
+        .feature-content p {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .about-image {
+            position: relative;
+            height: 400px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, var(--surface) 0%, rgba(17, 24, 39, 0.4) 100%);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .about-image::before {
+            content: '🚚 📦';
+            font-size: 6rem;
+            animation: float-emoji 6s ease-in-out infinite;
+        }
+
+        @keyframes float-emoji {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(0);
+            }
+
+            50% {
+                transform: translateY(-15px) rotate(5deg);
+            }
+        }
+
+        /* Glowing orb behind vehicle */
+        .orb {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(59, 130, 246, 0.4);
+            filter: blur(80px);
+            z-index: -1;
+        }
+
+        /* ── AI Integration Section ── */
+        #ai-integration {
+            background: linear-gradient(180deg, transparent 0%, rgba(16, 185, 129, 0.03) 50%, transparent 100%);
+        }
+
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .ai-card {
+            background: var(--surface);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem 2rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ai-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+        }
+
+        .ai-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+
+        .ai-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.5));
+        }
+
+        .ai-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .ai-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* ── Tech Stack Section ── */
+        .tech-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1rem 2rem;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+            color: var(--text);
+            transition: all 0.3s;
+        }
+
+        .tech-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--primary-glow);
+            transform: scale(1.05);
+        }
+
+        .tech-icon {
+            font-size: 1.5rem;
+        }
+
+        /* ── Footer ── */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* ── Animations ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            /* In a real app, add a hamburger menu */
+            section {
+                padding: 5rem 1.5rem 3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="bg-pattern"></div>
+
+    <!-- Navigation -->
+    <nav id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="logo">
+                📦 <span>Auto</span>Delivery
+            </a>
+            <div class="nav-links">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#about" class="nav-link">About Project</a>
+                <a href="#ai-integration" class="nav-link">AI Features</a>
+                <a href="#tech-stack" class="nav-link">Tech Stack</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home">
+        <div class="container" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="hero-badge">🚀 Next-Gen Logistics SPA</div>
+            <h1 class="hero-title reveal">Automation Delivery</h1>
+            <p class="hero-desc reveal" style="transition-delay: 0.1s;">
+                โปรเจครถขนส่งพัสดุขนาดเล็กอัจฉริยะ (Smart Autonomous Mini-Vehicle)
+                ลดระยะเวลา ลดภาระการเดินทาง และนำพัสดุส่งตรงถึงมือคุณอย่างมีประสิทธิภาพและปลอดภัย
+            </p>
+            <div class="btn-group reveal" style="transition-delay: 0.2s;">
+                <a href="#about" class="btn btn-primary">ดูรายละเอียดโครงการ</a>
+                <a href="#ai-integration" class="btn btn-outline">Explore AI Features</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about">
+        <div class="container">
+            <div class="section-subtitle reveal">The Problem & Solution</div>
+            <h2 class="section-title reveal">ปฏิวัติการขนส่งระดับชุมชน</h2>
+
+            <div class="about-grid mt-4">
+                <div class="about-image reveal">
+                    <div class="orb"></div>
+                </div>
+                <div class="about-text reveal" style="transition-delay: 0.2s;">
+                    <h3>ขับเคลื่อนความสะดวกสบายสู่มือผู้บริโภค</h3>
+                    <p>
+                        ในยุคปัจจุบัน การเดินทางไปรับพัสดุเองหรือการรอรับพัสดุที่ใช้เวลานานเป็นภาระสะสมสำหรับผู้บริโภค
+                        โปรเจค "Automation Delivery" จึงถือกำเนิดขึ้นเพื่อเป็นทางออกที่ชาญฉลาด
+                    </p>
+                    <p>
+                        รถขนส่งพัสดุขนาดเล็กที่ทำงานโดยอัตโนมัติ จะช่วยกระจายสินค้าในพื้นที่ชุนชนหรือมหาวิทยาลัย
+                        เข้าถึงพื้นแคบได้ดีกว่ารถบรรทุกขนาดใหญ่ และช่วยผู้รับประหยัดเวลาได้อย่างมหาศาล
+                    </p>
+
+                    <ul class="feature-list">
+                        <li>
+                            <div class="feature-icon">⚡</div>
+                            <div class="feature-content">
+                                <h4>เพิ่มประสิทธิภาพการขนส่ง</h4>
+                                <p>ลดเวลาที่สูญเสียในจุดคัดแยก และจัดส่งโดยตรงจากฮับชุมชน</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-icon">🎯</div>
+                            <div class="feature-content">
+                                <h4>ลดภาระผู้ทำรายการ (End-User)</h4>
+                                <p>ผู้รับไม่ต้องเดินทางออกมารับพัสดุไกลๆ รถขับมารอถึงหน้าอาคาร</p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="feature-icon">🌱</div>
+                            <div class="feature-content">
+                                <h4>ลดการใช้พลังงาน</h4>
+                                <p>รถพลังงานไฟฟ้าขนาดเล็ก (EV) ปล่อยมลพิษเป็นศูนย์ เป็นมิตรต่อสภาพแวดล้อม</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AI Integration Section -->
+    <section id="ai-integration">
+        <div class="container">
+            <div class="section-subtitle reveal" style="color: var(--accent);">Intelligent Core</div>
+            <h2 class="section-title reveal"
+                style="background: linear-gradient(135deg, #fff, var(--accent)); -webkit-background-clip: text;">AI
+                Features & Integration</h2>
+            <p class="reveal"
+                style="text-align: center; color: var(--muted); max-width: 700px; margin: 0 auto; font-size: 1.1rem;">
+                หัวใจสำคัญของ Automation Delivery คือระบบปัญญาประดิษฐ์ที่วิเคราะห์และตัดสินใจสภาวะต่างๆ แบบ Real-time
+                ตลอดเส้นทางการจัดส่ง
+            </p>
+
+            <div class="ai-grid">
+                <div class="ai-card reveal">
+                    <div class="ai-icon">🧠</div>
+                    <h3>AI Route Optimization</h3>
+                    <p>
+                        ระบบประมวลผลเส้นทางด้วย AI อัลกอริทึม (Predictive Pathfinding) วิเคราะห์สภาพการจราจรแบบเรียลไทม์
+                        และคำนวณลำดับการส่งพัสดุแต่ละกล่องให้ใช้ระยะทางและเวลาที่สั้นที่สุด
+                    </p>
+                </div>
+
+                <div class="ai-card reveal" style="transition-delay: 0.1s;">
+                    <div class="ai-icon">👁️</div>
+                    <h3>Computer Vision (ADAS)</h3>
+                    <p>
+                        กล้องและเซ็นเซอร์ LiDAR รอบคันทำงานร่วมกับ Deep Learning AI เพื่อตรวจจับสิ่งกีดขวาง คนเดินเท้า
+                        และสัตว์เลี้ยง (Obstacle Avoidance) ทำให้รถหยุดหรือหลบหลีกได้อัตโนมัติอย่างปลอดภัย
+                    </p>
+                </div>
+
+                <div class="ai-card reveal" style="transition-delay: 0.2s;">
+                    <div class="ai-icon">🔐</div>
+                    <h3>Facial & QR Recognition</h3>
+                    <p>
+                        เมื่อรถถึงจุดหมาย ระบบ AI Camera จะทำงานเพื่อสแกนใบหน้า (Face ID) หรือ QR Code ของผู้รับ
+                        เพื่อยืนยันตัวตนก่อนปลดล็อคช่องเก็บพัสดุป้องกันการส่งผิดพลาด 100%
+                    </p>
+                </div>
+
+                <div class="ai-card reveal" style="transition-delay: 0.3s;">
+                    <div class="ai-icon">⚙️</div>
+                    <h3>Predictive Maintenance AI</h3>
+                    <p>
+                        AI วิเคราะห์ข้อมูลจากเซ็นเซอร์มอเตอร์และแบตเตอรี่ (IoT Data) เพื่อพยากรณ์ความเสื่อมสภาพของอะไหล่
+                        แจ้งเตือนซ่อมบำรุงล่วงหน้าก่อนที่รถจะเสียกลางทาง
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tech Stack Section -->
+    <section id="tech-stack">
+        <div class="container text-center">
+            <div class="section-subtitle reveal">Behind the scenes</div>
+            <h2 class="section-title reveal">Tech Stack & Tools</h2>
+            <p class="reveal" style="text-align: center; color: var(--muted); max-width: 600px; margin: 0 auto;">
+                เทคโนโลยีเบื้องหลังการพัฒนาตั้งแต่ Hardware, โครงสร้าง Cloud ไปจนถึง Single Page Application (SPA)
+            </p>
+
+            <div class="tech-grid">
+                <div class="tech-item reveal"><span class="tech-icon">🌐</span> React.js / Vue (SPA UI)</div>
+                <div class="tech-item reveal" style="transition-delay: 0.05s;"><span class="tech-icon">⚡</span> Node.js
+                    (Backend Backend)</div>
+                <div class="tech-item reveal" style="transition-delay: 0.1s;"><span class="tech-icon">📡</span> MQTT
+                    (Real-time Telemetry)</div>
+                <div class="tech-item reveal" style="transition-delay: 0.15s;"><span class="tech-icon">🐍</span> Python
+                    (Machine Learning / CV)</div>
+                <div class="tech-item reveal" style="transition-delay: 0.2s;"><span class="tech-icon">🤖</span>
+                    TensorFlow / PyTorch</div>
+                <div class="tech-item reveal" style="transition-delay: 0.25s;"><span class="tech-icon">📡</span> ROS2
+                    (Robot Operating System)</div>
+                <div class="tech-item reveal" style="transition-delay: 0.3s;"><span class="tech-icon">🗄️</span> MongoDB
+                    / PostgreSQL</div>
+                <div class="tech-item reveal" style="transition-delay: 0.35s;"><span class="tech-icon">🔋</span> C++ /
+                    ESP32 (Hardware IoT)</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <h3>Automation Delivery Project</h3>
+            <p style="margin-top: 8px;">Designed for efficiency. Engineered with AI.</p>
+            <p style="margin-top: 2rem; font-size: 0.8rem;">&copy; 2026 Automation Delivery Team. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts for SPA behavior -->
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('.nav-links a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href');
+                const targetSection = document.querySelector(targetId);
+                window.scrollTo({
+                    top: targetSection.offsetTop - 60, // offset for fixed navbar
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Navbar blur and active link on scroll
+        const navbar = document.getElementById('navbar');
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-links a');
+
+        window.addEventListener('scroll', () => {
+            // Navbar styling
+            if (window.scrollY > 50) {
+                navbar.style.background = 'rgba(17, 24, 39, 0.9)';
+                navbar.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+            } else {
+                navbar.style.background = 'rgba(17, 24, 39, 0.7)';
+                navbar.style.boxShadow = 'none';
+            }
+
+            // Active section highlighting
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (scrollY >= (sectionTop - 200)) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Scroll Reveal Animation (Intersection Observer)
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealOnScroll = new IntersectionObserver(function (entries, observer) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) return;
+                entry.target.classList.add('active');
+                // Optional: Stop observing once revealed
+                // observer.unobserve(entry.target);
+            });
+        }, revealOptions);
+
+        revealElements.forEach(el => {
+            revealOnScroll.observe(el);
+        });
+    </script>
+</body>
+
+</html>
